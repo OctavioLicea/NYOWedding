@@ -185,18 +185,36 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
 .tl-experience-textarea:focus { border-color: var(--rose); }
 .tl-experience-textarea::placeholder { color: var(--ink-mute); font-style: italic; }
 
-/* ── Guests v2 ── */
-.guests-toolbar { display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap; }
+/* ── Guests v3 ── */
+.guests-toolbar { display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap; }
+
+/* Panel gestión de mesas */
+.mesas-manager { background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:20px; }
+.mesas-manager-header { display:flex;align-items:center;gap:10px;margin-bottom:12px; }
+.mesas-manager-title { font-family:var(--font-heading);font-size:15px;font-weight:500;color:var(--ink);flex:1; }
+.mesas-chips { display:flex;flex-wrap:wrap;gap:8px;align-items:center; }
+.mesa-chip { display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:20px;padding:4px 10px 4px 12px;font-size:13px;color:var(--ink-soft); }
+.mesa-chip-name { outline:none;border:none;background:transparent;font-size:13px;color:var(--ink);font-family:var(--font-body);min-width:60px;max-width:140px; }
+.mesa-chip-del { background:none;border:none;cursor:pointer;color:var(--ink-mute);font-size:13px;padding:0;line-height:1;transition:color .12s; }
+.mesa-chip-del:hover { color:var(--rose); }
+.btn-add-mesa { display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border:0.5px dashed var(--rose-mid);border-radius:20px;background:transparent;color:var(--rose-mid);font-size:12px;font-family:var(--font-body);cursor:pointer;transition:background .12s; }
+.btn-add-mesa:hover { background:var(--rose-light); }
+
+/* Sort controls */
+.mesa-sort { font-size:11px;color:var(--ink-mute);cursor:pointer;padding:2px 6px;border-radius:4px;border:0.5px solid var(--border);background:var(--surface);margin-left:auto;font-family:var(--font-body);outline:none; }
+
 .mesa-group { margin-bottom:20px; }
-.mesa-header { display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--surface2);border-radius:var(--radius);margin-bottom:4px;border:0.5px solid var(--border);cursor:pointer; }
+.mesa-header { display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--surface2);border-radius:var(--radius);margin-bottom:4px;border:0.5px solid var(--border);cursor:pointer;user-select:none; }
 .mesa-header:hover { border-color:var(--rose); }
 .mesa-badge { font-family:var(--font-heading);font-size:15px;font-weight:500;color:var(--rose-dark); }
-.mesa-count { font-size:12px;color:var(--ink-mute);margin-left:auto; }
+.mesa-count { font-size:12px;color:var(--ink-mute); }
 .mesa-side-novio { display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;background:var(--sage-light);color:var(--sage-dark); }
 .mesa-side-novia { display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;background:var(--rose-light);color:var(--rose-dark); }
 .mesa-side-mix { display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;background:var(--gold-light);color:var(--gold); }
 .guests-table { width:100%;border-collapse:collapse;min-width:680px; }
-.guests-table th { font-size:11px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-mute);padding:7px 10px;text-align:left;border-bottom:0.5px solid var(--border-strong);white-space:nowrap; }
+.guests-table th { font-size:11px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-mute);padding:7px 10px;text-align:left;border-bottom:0.5px solid var(--border-strong);white-space:nowrap;cursor:pointer; }
+.guests-table th:hover { color:var(--rose); }
+.guests-table th.sorted { color:var(--rose-dark); }
 .guests-table td { padding:6px 10px;border-bottom:0.5px solid var(--border);vertical-align:middle; }
 .guests-table tr:hover td { background:var(--surface2); }
 .guests-table-wrap { overflow-x:auto; }
@@ -207,6 +225,15 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
 .lado-tag { font-size:10px;padding:1px 7px;border-radius:20px;font-weight:500; }
 .lado-novio { background:var(--sage-light);color:var(--sage-dark); }
 .lado-novia { background:var(--rose-light);color:var(--rose-dark); }
+
+/* Drag & drop */
+.drag-handle { cursor:grab;color:var(--ink-mute);font-size:14px;padding:0 4px;user-select:none; }
+.drag-handle:active { cursor:grabbing; }
+tr.dragging { opacity:.4; }
+tr.drag-over td { background:var(--rose-light) !important;border-top:2px solid var(--rose); }
+.drop-zone-mesa { border:2px dashed var(--rose-mid);border-radius:var(--radius);padding:14px;text-align:center;font-size:12px;color:var(--rose-mid);display:none;margin-top:4px; }
+.drop-zone-mesa.active { display:block; }
+.drop-zone-mesa.empty-mesa { display:block; background:var(--rose-light); padding:20px; font-size:13px; }
 
 /* ── Platiquemos ── */
 .plat-note { background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:12px;display:flex;align-items:flex-start;gap:14px; }
@@ -316,6 +343,17 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
 <div class="page" id="page-guests">
   <div class="page-title">Lista de invitados</div>
   <div class="page-sub">Nydia &amp; Octavio — gestión por mesa, lado y relación</div>
+
+  <!-- Panel gestión de mesas -->
+  <div class="mesas-manager" id="mesas-manager">
+    <div class="mesas-manager-header">
+      <span class="mesas-manager-title">🪑 Mesas</span>
+      <button class="btn-add-mesa" onclick="addMesa()">+ Nueva mesa</button>
+    </div>
+    <div class="mesas-chips" id="mesas-chips">
+      <span style="font-size:12px;color:var(--ink-mute)">Cargando mesas…</span>
+    </div>
+  </div>
 
   <div class="guests-toolbar">
     <div class="search-wrap" style="max-width:240px">
@@ -461,6 +499,9 @@ const STATUS_CLASS = {"Sin iniciar":"s-none","En proceso":"s-progress","Confirma
 
 /* ── State ── */
 let items = {};
+let mesas = []; /* lista de mesas desde Supabase */
+let mesaSortField = {}; /* { nombreMesa: 'name'|'relacion' } */
+let dragSrcId = null; /* id del guest siendo arrastrado */
 CATS.forEach(c => { items[c.id] = []; });
 let catNotes = {};
 CATS.forEach(c => { catNotes[c.id] = ""; });
@@ -478,12 +519,13 @@ function setSyncing(on) {
 async function loadAll() {
   showLoading(true);
   try {
-    const [dbItems, dbCatNotes, dbGuests, dbTimeline, dbPlat] = await Promise.all([
+    const [dbItems, dbCatNotes, dbGuests, dbTimeline, dbPlat, dbMesas] = await Promise.all([
       sbGet("tracker_items","order=orden.asc,created_at.asc"),
       sbGet("cat_notes"),
       sbGet("guests","order=created_at.asc"),
       sbGet("timeline","order=orden.asc,created_at.asc"),
       sbGet("plat_notes","order=created_at.desc"),
+      sbGet("mesas","order=orden.asc,created_at.asc"),
     ]);
 
     /* tracker items — if empty, seed with defaults */
@@ -505,6 +547,9 @@ async function loadAll() {
     } else {
       guests = dbGuests;
     }
+
+    /* mesas */
+    mesas = dbMesas;
 
     /* timeline — if empty, seed with defaults */
     if(dbTimeline.length === 0) {
@@ -814,108 +859,215 @@ async function seedGuests() {
   if(result) guests = result;
 }
 
+/* ══════════════════════════════════════════
+   MESAS — gestión
+══════════════════════════════════════════ */
+function renderMesasManager() {
+  const container = document.getElementById('mesas-chips');
+  if (!container) return;
+  if (mesas.length === 0) {
+    container.innerHTML = `<span style="font-size:12px;color:var(--ink-mute)">Sin mesas creadas aún.</span>`;
+    return;
+  }
+  container.innerHTML = mesas.map(m => `
+    <div class="mesa-chip" id="chip-${m.id}">
+      <input class="mesa-chip-name" value="${(m.nombre||'').replace(/"/g,'&quot;')}"
+        onchange="renameMesa(${m.id}, this.value)"
+        style="width:${Math.max(60, (m.nombre||'').length * 8)}px">
+      <button class="mesa-chip-del" onclick="deleteMesa(${m.id})" title="Eliminar mesa">✕</button>
+    </div>
+  `).join('');
+}
+
+async function addMesa() {
+  const orden = mesas.length;
+  const nombre = `Mesa ${orden + 1}`;
+  setSyncing(true);
+  const result = await sbInsert('mesas', [{nombre, orden}]);
+  if (result && result[0]) {
+    mesas.push(result[0]);
+    renderMesasManager();
+    renderGuests();
+  }
+  setSyncing(false);
+}
+
+async function renameMesa(id, nombre) {
+  const m = mesas.find(x => x.id === id);
+  if (!m || m.nombre === nombre) return;
+  const oldNombre = m.nombre;
+  m.nombre = nombre;
+  guests.forEach(g => { if (g.mesa_grupo === oldNombre) g.mesa_grupo = nombre; });
+  renderMesasManager();
+  renderGuests();
+  setSyncing(true);
+  await sbUpdate('mesas', id, {nombre});
+  const afectados = guests.filter(g => g.mesa_grupo === nombre);
+  await Promise.all(afectados.map(g => sbUpdate('guests', g.id, {mesa_grupo: nombre})));
+  setSyncing(false);
+}
+
+async function deleteMesa(id) {
+  const m = mesas.find(x => x.id === id);
+  if (!m) return;
+  if (!confirm(`¿Eliminar "${m.nombre}"? Los invitados pasarán a "Sin mesa".`)) return;
+  setSyncing(true);
+  const afectados = guests.filter(g => g.mesa_grupo === m.nombre);
+  guests.forEach(g => { if (g.mesa_grupo === m.nombre) g.mesa_grupo = 'Sin mesa'; });
+  mesas = mesas.filter(x => x.id !== id);
+  renderMesasManager();
+  renderGuests();
+  await sbDelete('mesas', id);
+  await Promise.all(afectados.map(g => sbUpdate('guests', g.id, {mesa_grupo: 'Sin mesa'})));
+  setSyncing(false);
+}
+
+/* ══════════════════════════════════════════
+   GUESTS — render v3
+══════════════════════════════════════════ */
 function renderGuests() {
-  const q = document.getElementById("guest-search").value.toLowerCase();
-  const fl = document.getElementById("guest-filter-lado").value;
-  const fc = document.getElementById("guest-filter-conf").value;
+  const q  = document.getElementById('guest-search').value.toLowerCase();
+  const fl = document.getElementById('guest-filter-lado').value;
+  const fc = document.getElementById('guest-filter-conf').value;
 
   const filtered = guests.filter(g =>
-    (!q || (g.name||"").toLowerCase().includes(q) || (g.relacion||"").toLowerCase().includes(q) || (g.mesa_grupo||"").toLowerCase().includes(q)) &&
+    (!q || (g.name||'').toLowerCase().includes(q) || (g.relacion||'').toLowerCase().includes(q) || (g.mesa_grupo||'').toLowerCase().includes(q)) &&
     (!fl || g.lado === fl) &&
     (!fc || g.conf === fc)
   );
 
-  /* group by mesa_grupo */
+  const mesaNames = mesas.map(m => m.nombre);
   const groups = {};
   filtered.forEach(g => {
-    const key = g.mesa_grupo || "Sin mesa";
-    if(!groups[key]) groups[key] = [];
+    const key = g.mesa_grupo || 'Sin mesa';
+    if (!groups[key]) groups[key] = [];
     groups[key].push(g);
   });
 
-  const confMap = {"Confirmado":"c-conf","Pendiente":"c-pend","No asiste":"c-no"};
+  /* orden: todas las mesas registradas (incluso vacías) + grupos huérfanos + Sin mesa al final */
+  const keys = [
+    ...mesaNames, /* todas las mesas, tengan o no invitados */
+    ...Object.keys(groups).filter(k => !mesaNames.includes(k) && k !== 'Sin mesa')
+  ];
+  if (groups['Sin mesa'] || guests.some(g => !g.mesa_grupo || g.mesa_grupo === 'Sin mesa')) {
+    if (!keys.includes('Sin mesa')) keys.push('Sin mesa');
+  }
 
-  let html = "";
-  Object.entries(groups).forEach(([mesa, glist]) => {
-    const lados = [...new Set(glist.map(g=>g.lado).filter(Boolean))];
-    const sideClass = lados.length > 1 ? "mesa-side-mix" : lados[0]==="NOVIO" ? "mesa-side-novio" : "mesa-side-novia";
-    const sideLabel = lados.length > 1 ? "Mixta" : lados[0]==="NOVIO" ? "🤵 Novio" : "👰 Novia";
-    const conf = glist.filter(g=>g.conf==="Confirmado").length;
+  const confMap = {'Confirmado':'c-conf','Pendiente':'c-pend','No asiste':'c-no'};
+  let html = '';
 
-    html += `<div class="mesa-group">
-      <div class="mesa-header" onclick="toggleMesa('mesa-body-${CSS.escape(mesa)}')">
+  keys.forEach(mesa => {
+    const glist = groups[mesa] || [];
+    const sortF = mesaSortField[mesa] || 'none';
+    let sorted = [...glist];
+    if (sortF === 'name') sorted.sort((a,b) => (a.name||'').localeCompare(b.name||''));
+    if (sortF === 'relacion') sorted.sort((a,b) => (a.relacion||'').localeCompare(b.relacion||''));
+
+    const lados = [...new Set(sorted.map(g=>g.lado).filter(Boolean))];
+    const sideClass = lados.length > 1 ? 'mesa-side-mix' : lados[0]==='NOVIO' ? 'mesa-side-novio' : 'mesa-side-novia';
+    const sideLabel = lados.length > 1 ? 'Mixta' : lados[0]==='NOVIO' ? '🤵 Novio' : '👰 Novia';
+    const conf = sorted.filter(g=>g.conf==='Confirmado').length;
+    const esc = CSS.escape(mesa);
+
+    html += `<div class="mesa-group" id="mesa-group-${esc}"
+        ondragover="onDragOverMesa(event,'${mesa.replace(/'/g,"\'")}')"
+        ondrop="onDropMesa(event,'${mesa.replace(/'/g,"\'")}')"
+        ondragleave="onDragLeaveMesa(event)">
+      <div class="mesa-header" onclick="toggleMesa('mesa-body-${esc}')">
         <span class="mesa-badge">${mesa}</span>
         <span class="${sideClass}">${sideLabel}</span>
-        <span class="mesa-count">${conf}/${glist.length} confirmados</span>
+        <span class="mesa-count">${conf}/${sorted.length} confirmados</span>
+        <select class="mesa-sort" onclick="event.stopPropagation()" onchange="setSortMesa('${mesa.replace(/'/g,"\'")}',this.value)">
+          <option value="none" ${sortF==='none'?'selected':''}>Orden original</option>
+          <option value="name" ${sortF==='name'?'selected':''}>↑ Nombre</option>
+          <option value="relacion" ${sortF==='relacion'?'selected':''}>↑ Relación</option>
+        </select>
         <span style="color:var(--ink-mute);font-size:13px">&#8964;</span>
       </div>
-      <div id="mesa-body-${CSS.escape(mesa)}" class="guests-table-wrap">
+      <div id="mesa-body-${esc}" class="guests-table-wrap">
         <table class="guests-table">
           <thead><tr>
+            <th style="width:24px"></th>
             <th>Nombre</th><th>Teléfono</th><th>Relación</th>
             <th>Lado</th><th>Tipo</th><th>Confirmación</th><th style="width:28px"></th>
           </tr></thead>
-          <tbody>${glist.map(g => {
-            const ri = guests.indexOf(g);
-            const cc = confMap[g.conf]||"c-pend";
-            return `<tr>
-              <td><input class="cell-input" style="min-width:160px;font-weight:500" value="${(g.name||"").replace(/"/g,'&quot;')}" onchange="updateGuest(${ri},'name',this.value)" placeholder="Nombre…"></td>
-              <td><input class="cell-input" style="min-width:110px" value="${g.contacto||""}" onchange="updateGuest(${ri},'contacto',this.value)" placeholder="Tel…"></td>
-              <td><input class="cell-input" style="min-width:80px" value="${g.relacion||""}" onchange="updateGuest(${ri},'relacion',this.value)" placeholder="Relación…"></td>
-              <td>
-                <select class="conf-sel ${g.lado==='NOVIO'?'lado-novio':'lado-novia'}" onchange="updateGuest(${ri},'lado',this.value);renderGuests()">
-                  <option ${g.lado==='NOVIO'?'selected':''}>NOVIO</option>
-                  <option ${g.lado==='NOVIA'?'selected':''}>NOVIA</option>
-                </select>
-              </td>
-              <td>
-                <select class="conf-sel" style="background:var(--surface2);color:var(--ink-soft)" onchange="updateGuest(${ri},'tipo',this.value)">
-                  <option ${g.tipo==='A'?'selected':''} value="A">Adulto</option>
-                  <option ${g.tipo==='N'?'selected':''} value="N">Niño</option>
-                </select>
-              </td>
-              <td>
-                <select class="conf-sel ${cc}" onchange="updateGuest(${ri},'conf',this.value);this.className='conf-sel '+({'Confirmado':'c-conf','Pendiente':'c-pend','No asiste':'c-no'}[this.value]||'c-pend')">
-                  <option ${g.conf==='Confirmado'?'selected':''}>Confirmado</option>
-                  <option ${g.conf==='Pendiente'?'selected':''}>Pendiente</option>
-                  <option ${g.conf==='No asiste'?'selected':''}>No asiste</option>
-                </select>
-              </td>
-              <td><button class="btn-del" onclick="deleteGuest(${ri})">&#10005;</button></td>
-            </tr>`;
-          }).join("")}</tbody>
+          <tbody>
+            ${sorted.map(g => {
+              const ri = guests.indexOf(g);
+              const cc = confMap[g.conf]||'c-pend';
+              return `<tr draggable="true"
+                  ondragstart="onDragStart(event,${g.id})"
+                  ondragend="onDragEnd(event)"
+                  ondragover="onDragOverRow(event)"
+                  ondrop="onDropRow(event,'${mesa.replace(/'/g,"\'")}',${g.id})">
+                <td><span class="drag-handle" title="Arrastrar">⠿</span></td>
+                <td><input class="cell-input" style="min-width:160px;font-weight:500" value="${(g.name||'').replace(/"/g,'&quot;')}" onchange="updateGuest(${ri},'name',this.value)" placeholder="Nombre…"></td>
+                <td><input class="cell-input" style="min-width:110px" value="${g.contacto||''}" onchange="updateGuest(${ri},'contacto',this.value)" placeholder="Tel…"></td>
+                <td><input class="cell-input" style="min-width:80px" value="${g.relacion||''}" onchange="updateGuest(${ri},'relacion',this.value)" placeholder="Relación…"></td>
+                <td>
+                  <select class="conf-sel ${g.lado==='NOVIO'?'lado-novio':'lado-novia'}" onchange="updateGuest(${ri},'lado',this.value);renderGuests()">
+                    <option ${g.lado==='NOVIO'?'selected':''}>NOVIO</option>
+                    <option ${g.lado==='NOVIA'?'selected':''}>NOVIA</option>
+                  </select>
+                </td>
+                <td>
+                  <select class="conf-sel" style="background:var(--surface2);color:var(--ink-soft)" onchange="updateGuest(${ri},'tipo',this.value)">
+                    <option ${g.tipo==='A'?'selected':''} value="A">Adulto</option>
+                    <option ${g.tipo==='N'?'selected':''} value="N">Niño</option>
+                  </select>
+                </td>
+                <td>
+                  <select class="conf-sel ${cc}" onchange="updateGuest(${ri},'conf',this.value);this.className='conf-sel '+({'Confirmado':'c-conf','Pendiente':'c-pend','No asiste':'c-no'}[this.value]||'c-pend')">
+                    <option ${g.conf==='Confirmado'?'selected':''}>Confirmado</option>
+                    <option ${g.conf==='Pendiente'?'selected':''}>Pendiente</option>
+                    <option ${g.conf==='No asiste'?'selected':''}>No asiste</option>
+                  </select>
+                </td>
+                <td><button class="btn-del" onclick="deleteGuest(${ri})">&#10005;</button></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
         </table>
+        <div class="drop-zone-mesa ${sorted.length === 0 ? 'empty-mesa' : ''}" id="dropzone-${esc}">
+          ${sorted.length === 0 ? '⠿ Arrastra invitados aquí para asignarlos a ' + mesa : 'Soltar aquí → ' + mesa}
+        </div>
       </div>
     </div>`;
   });
 
-  document.getElementById("guests-by-mesa").innerHTML = html || `<div style="text-align:center;padding:32px;color:var(--ink-mute);font-size:13px">Sin invitados para ese filtro.</div>`;
+  document.getElementById('guests-by-mesa').innerHTML = html ||
+    `<div style="text-align:center;padding:32px;color:var(--ink-mute);font-size:13px">Sin invitados para ese filtro.</div>`;
 
-  /* metrics */
   const total = guests.length;
-  const conf = guests.filter(g=>g.conf==="Confirmado").length;
-  const pend = guests.filter(g=>g.conf==="Pendiente").length;
-  const noAsiste = guests.filter(g=>g.conf==="No asiste").length;
-  const novio = guests.filter(g=>g.lado==="NOVIO").length;
-  const novia = guests.filter(g=>g.lado==="NOVIA").length;
-  document.getElementById("guest-metrics").innerHTML = `
+  const conf  = guests.filter(g=>g.conf==='Confirmado').length;
+  const pend  = guests.filter(g=>g.conf==='Pendiente').length;
+  const noA   = guests.filter(g=>g.conf==='No asiste').length;
+  const novio = guests.filter(g=>g.lado==='NOVIO').length;
+  const novia = guests.filter(g=>g.lado==='NOVIA').length;
+  document.getElementById('guest-metrics').innerHTML = `
     <span style="color:var(--ink)">${total} invitados</span>
     <span style="color:var(--s-ok)">✓ ${conf}</span>
     <span style="color:var(--s-progress)">⏳ ${pend}</span>
-    <span style="color:var(--s-cancel)">✗ ${noAsiste}</span>
+    <span style="color:var(--s-cancel)">✗ ${noA}</span>
     <span style="color:var(--sage-dark)">🤵 ${novio}</span>
     <span style="color:var(--rose-dark)">👰 ${novia}</span>
   `;
+  renderMesasManager();
+}
+
+function setSortMesa(mesa, field) {
+  mesaSortField[mesa] = field;
+  renderGuests();
 }
 
 function toggleMesa(id) {
   const el = document.getElementById(id);
-  if(el) el.style.display = el.style.display==="none" ? "" : "none";
+  if(el) el.style.display = el.style.display==='none' ? '' : 'none';
 }
 
 async function addGuest() {
   setSyncing(true);
-  const result = await sbInsert("guests",[{name:"Nuevo invitado",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"",mesa_grupo:"Sin mesa"}]);
+  const result = await sbInsert('guests',[{name:'Nuevo invitado',contacto:'',conf:'Pendiente',tipo:'A',lado:'NOVIO',relacion:'',mesa_grupo:'Sin mesa'}]);
   if(result&&result[0]){ guests.push(result[0]); renderGuests(); }
   setSyncing(false);
 }
@@ -928,7 +1080,7 @@ function updateGuest(i, field, val) {
   clearTimeout(guestTimers[id]);
   guestTimers[id] = setTimeout(async()=>{
     setSyncing(true);
-    await sbUpdate("guests", id, {[field]: val});
+    await sbUpdate('guests', id, {[field]: val});
     setSyncing(false);
   }, 600);
 }
@@ -937,11 +1089,62 @@ async function deleteGuest(i) {
   const id = guests[i].id;
   setSyncing(true);
   guests.splice(i,1); renderGuests();
-  await sbDelete("guests", id);
+  await sbDelete('guests', id);
   setSyncing(false);
 }
 
 function filterGuests(){ renderGuests(); }
+
+/* ── Drag & Drop ── */
+function onDragStart(e, guestId) {
+  dragSrcId = guestId;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => {
+    const tr = e.target.closest('tr');
+    if(tr) tr.classList.add('dragging');
+  }, 0);
+  document.querySelectorAll('.drop-zone-mesa:not(.empty-mesa)').forEach(z => z.style.display = 'block');
+}
+
+function onDragEnd(e) {
+  dragSrcId = null;
+  document.querySelectorAll('tr.dragging').forEach(r => r.classList.remove('dragging'));
+  document.querySelectorAll('tr.drag-over').forEach(r => r.classList.remove('drag-over'));
+  document.querySelectorAll('.drop-zone-mesa:not(.empty-mesa)').forEach(z => z.style.display = 'none');
+}
+
+function onDragOverRow(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('tr.drag-over').forEach(r => r.classList.remove('drag-over'));
+  e.currentTarget.classList.add('drag-over');
+}
+
+function onDragOverMesa(e, mesa) { e.preventDefault(); }
+function onDragLeaveMesa(e) {}
+
+async function onDropRow(e, mesa, targetGuestId) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (dragSrcId === null || dragSrcId === targetGuestId) return;
+  await moverGuestAMesa(dragSrcId, mesa);
+}
+
+async function onDropMesa(e, mesa) {
+  e.preventDefault();
+  if (dragSrcId === null) return;
+  await moverGuestAMesa(dragSrcId, mesa);
+}
+
+async function moverGuestAMesa(guestId, nuevaMesa) {
+  const g = guests.find(x => x.id === guestId);
+  if (!g || g.mesa_grupo === nuevaMesa) return;
+  g.mesa_grupo = nuevaMesa;
+  renderGuests();
+  setSyncing(true);
+  await sbUpdate('guests', guestId, {mesa_grupo: nuevaMesa});
+  setSyncing(false);
+}
 
 /* ── Timeline ── */
 function renderTimeline() {
