@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boda de Nydia y Octavio</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Paleta boda Nydia & Octavio */
+  --rose: #7D2935;        /* vino / borgoña */
+  --rose-light: #F3E8EA;  /* vino muy claro */
+  --rose-dark: #561820;   /* vino oscuro */
+  --rose-mid: #A34455;    /* vino medio */
+  --sage: #6B8F71;        /* verde salvia */
+  --sage-light: #EBF0E8;  /* salvia muy claro */
+  --sage-dark: #3D5C42;   /* salvia oscuro */
+  --gold: #9C6B2E;        /* cobre / oro viejo */
+  --gold-light: #F7F0E3;  /* kraft claro */
+  --gold-mid: #C4973A;    /* cobre medio */
+  --kraft: #EDE0CB;       /* beige kraft */
+  --ink: #2A1F1A;         /* casi negro cálido */
+  --ink-soft: #5C4A3A;    /* café suave */
+  --ink-mute: #9C8878;    /* beige grisáceo */
+  --surface: #FAF7F2;     /* fondo kraft muy claro */
+  --surface2: #F2EBE0;    /* superficie secundaria */
+  --border: rgba(90,50,30,0.10);
+  --border-strong: rgba(90,50,30,0.20);
+  --radius: 10px;
+  --radius-lg: 16px;
+  --font-display: 'Great Vibes', cursive;
+  --font-heading: 'Cormorant Garamond', serif;
+  --font-body: 'DM Sans', sans-serif;
+  --s-ok: #3D5C42; --s-ok-bg: #E4EDE5;
+  --s-paid: #2A4430; --s-paid-bg: #D3E5D6;
+  --s-progress: #9C6B2E; --s-progress-bg: #F5EAD8;
+  --s-none: #7A6A5A; --s-none-bg: #EDE8E2;
+  --s-cancel: #7D2935; --s-cancel-bg: #F3E8EA;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body { font-family: var(--font-body); background: var(--surface); color: var(--ink); min-height: 100vh; }
+
+/* ── Layout ── */
+.app { display: grid; grid-template-columns: 240px 1fr; grid-template-rows: auto 1fr; min-height: 100vh; transition: grid-template-columns .25s ease; }
+.app.sidebar-collapsed { grid-template-columns: 0px 1fr; }
+.topbar { grid-column: 1/-1; display: flex; align-items: center; gap: 12px; padding: 0 20px; height: 64px; border-bottom: 1px solid var(--kraft); background: var(--surface); position: sticky; top: 0; z-index: 30; }
+.topbar-logo { font-family: var(--font-display); font-size: 26px; color: var(--rose-dark); letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1; }
+.topbar-sub { font-size: 12px; color: var(--ink-mute); margin-left: 2px; white-space: nowrap; }
+.topbar-spacer { flex: 1; }
+.btn-export { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius); border: 0.5px solid var(--border-strong); background: var(--surface2); color: var(--ink-soft); font-family: var(--font-body); font-size: 13px; cursor: pointer; transition: background .15s; white-space: nowrap; }
+.btn-export:hover { background: var(--rose-light); color: var(--rose-dark); border-color: var(--rose); }
+
+/* ── Sidebar ── */
+.sidebar { border-right: 0.5px solid var(--border); padding: 20px 0; overflow-y: auto; background: var(--surface2); transition: all .25s ease; }
+.sidebar.collapsed { width: 0; padding: 0; overflow: hidden; border-right: none; }
+.sidebar-section { padding: 6px 16px 2px; font-size: 10px; font-weight: 500; letter-spacing: .08em; color: var(--ink-mute); text-transform: uppercase; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 20px; font-size: 13px; color: var(--ink-soft); cursor: pointer; transition: all .12s; border-left: 2px solid transparent; white-space: nowrap; }
+.nav-item:hover { background: var(--surface2); color: var(--ink); }
+.nav-item.active { background: var(--rose-light); color: var(--rose-dark); border-left-color: var(--rose); font-weight: 500; }
+.nav-icon { font-size: 15px; width: 18px; text-align: center; }
+.nav-badge { margin-left: auto; font-size: 11px; background: var(--surface2); color: var(--ink-mute); padding: 1px 7px; border-radius: 20px; }
+.nav-item.active .nav-badge { background: rgba(125,41,53,.12); color: var(--rose-dark); }
+.btn-menu { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: var(--radius); border: 0.5px solid var(--border-strong); background: var(--surface2); color: var(--ink-soft); cursor: pointer; font-size: 16px; transition: background .15s; flex-shrink: 0; }
+.btn-menu:hover { background: var(--rose-light); color: var(--rose-dark); border-color: var(--rose); }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(30,20,40,.35); z-index: 40; }
+.sidebar-overlay.visible { display: block; }
+@media (max-width: 680px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { position: fixed; top: 60px; left: 0; bottom: 0; width: 260px; z-index: 50; transform: translateX(-100%); padding: 20px 0; border-right: 0.5px solid var(--border-strong); }
+  .sidebar.mobile-open { transform: translateX(0); }
+  .sidebar.collapsed { width: 260px; transform: translateX(-100%); }
+  .main { padding: 20px 16px; }
+}
+
+/* ── Main ── */
+.main { overflow-y: auto; padding: 28px 32px; }
+
+/* ── Dashboard ── */
+.page { display: none; }
+.page.active { display: block; }
+.page-title { font-family: var(--font-heading); font-size: 28px; font-weight: 500; color: var(--rose-dark); margin-bottom: 4px; letter-spacing: .01em; }
+.page-sub { font-size: 13px; color: var(--ink-mute); margin-bottom: 24px; }
+
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.metric { background: var(--surface2); border-radius: var(--radius-lg); padding: 16px; }
+.metric-num { font-family: var(--font-heading); font-size: 32px; font-weight: 500; line-height: 1; }
+.metric-lbl { font-size: 11px; color: var(--ink-mute); margin-top: 4px; text-transform: uppercase; letter-spacing: .05em; }
+.metric.rose .metric-num { color: var(--rose); }
+.metric.gold .metric-num { color: var(--gold); }
+.metric.green .metric-num { color: var(--sage-dark); }
+.metric.red .metric-num { color: var(--rose-dark); }
+
+.dash-cats { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.cat-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; cursor: pointer; transition: border-color .15s; }
+.cat-card:hover { border-color: var(--rose); }
+.cat-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.cat-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--rose-light); color: var(--rose); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.cat-name { font-weight: 500; font-size: 14px; color: var(--ink); }
+.cat-count { font-size: 12px; color: var(--ink-mute); }
+.progress-bar { height: 5px; background: var(--surface2); border-radius: 10px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--rose); border-radius: 10px; transition: width .4s; }
+.cat-stats { display: flex; gap: 10px; margin-top: 8px; font-size: 11px; }
+.stat-pill { padding: 2px 8px; border-radius: 20px; }
+
+/* ── Tracker ── */
+.tracker-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+.search-wrap { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 180px; background: var(--surface2); border: 0.5px solid var(--border-strong); border-radius: var(--radius); padding: 0 12px; }
+.search-wrap input { border: none; background: transparent; font-family: var(--font-body); font-size: 13px; color: var(--ink); padding: 8px 0; outline: none; flex: 1; }
+.filter-sel { font-family: var(--font-body); font-size: 13px; color: var(--ink); background: var(--surface2); border: 0.5px solid var(--border-strong); border-radius: var(--radius); padding: 8px 12px; outline: none; cursor: pointer; }
+
+.cat-section { margin-bottom: 28px; }
+.cat-section-header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--surface2); border-radius: var(--radius); margin-bottom: 6px; cursor: pointer; border: 0.5px solid var(--border); }
+.cat-section-header:hover { border-color: var(--rose); }
+.cat-section-icon { width: 28px; height: 28px; border-radius: 8px; background: var(--rose-light); color: var(--rose); display: flex; align-items: center; justify-content: center; font-size: 13px; }
+.cat-section-name { font-weight: 500; font-size: 14px; color: var(--ink); flex: 1; }
+.cat-section-prog { font-size: 12px; color: var(--ink-mute); }
+.cat-section-toggle { font-size: 13px; color: var(--ink-mute); transition: transform .2s; }
+.cat-section-toggle.open { transform: rotate(180deg); }
+
+.items-table { width: 100%; border-collapse: collapse; }
+.items-table th { font-size: 11px; font-weight: 500; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-mute); padding: 6px 10px; text-align: left; border-bottom: 0.5px solid var(--border); }
+.items-table td { padding: 7px 10px; border-bottom: 0.5px solid var(--border); vertical-align: middle; }
+.items-table tr:hover td { background: var(--surface2); }
+.item-name { font-size: 13px; color: var(--ink); }
+.cell-input { width: 100%; font-family: var(--font-body); font-size: 13px; color: var(--ink); background: transparent; border: none; outline: none; padding: 2px 0; }
+.cell-input:focus { background: var(--surface2); border-radius: 4px; padding: 2px 6px; }
+.cell-input::placeholder { color: var(--ink-mute); }
+.status-sel { font-family: var(--font-body); font-size: 12px; border: 0.5px solid var(--border-strong); border-radius: 20px; padding: 3px 10px; outline: none; cursor: pointer; font-weight: 500; }
+.s-none { background: var(--s-none-bg); color: var(--s-none); border-color: transparent; }
+.s-progress { background: var(--s-progress-bg); color: var(--s-progress); border-color: transparent; }
+.s-ok { background: var(--s-ok-bg); color: var(--s-ok); border-color: transparent; }
+.s-paid { background: var(--s-paid-bg); color: var(--s-paid); border-color: transparent; }
+.s-cancel { background: var(--s-cancel-bg); color: var(--s-cancel); border-color: transparent; }
+
+/* ── Guests ── */
+.guests-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+.btn-add { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--radius); border: 0.5px solid var(--rose); background: var(--rose-light); color: var(--rose-dark); font-family: var(--font-body); font-size: 13px; cursor: pointer; font-weight: 500; transition: background .15s; }
+.btn-add:hover { background: var(--rose); color: #fff; }
+.guests-table-wrap { overflow-x: auto; }
+.guests-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+.guests-table th { font-size: 11px; font-weight: 500; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-mute); padding: 8px 12px; text-align: left; border-bottom: 0.5px solid var(--border-strong); white-space: nowrap; }
+.guests-table td { padding: 7px 12px; border-bottom: 0.5px solid var(--border); vertical-align: middle; }
+.guests-table tr:hover td { background: var(--surface2); }
+.btn-del { background: none; border: none; color: var(--ink-mute); cursor: pointer; font-size: 14px; padding: 2px 6px; border-radius: 4px; }
+.btn-del:hover { color: var(--s-cancel); background: var(--s-cancel-bg); }
+.confirm-pill { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+.c-conf { background: var(--s-ok-bg); color: var(--s-ok); }
+.c-pend { background: var(--s-progress-bg); color: var(--s-progress); }
+.c-no { background: var(--s-cancel-bg); color: var(--s-cancel); }
+.c-wait { background: var(--s-none-bg); color: var(--s-none); }
+
+/* ── Timeline ── */
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.tl-row { display: grid; grid-template-columns: 90px 1fr; gap: 0; align-items: stretch; }
+.tl-time-col { display: flex; flex-direction: column; align-items: center; }
+.tl-time { font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--rose); padding-top: 18px; white-space: nowrap; }
+.tl-line-wrap { display: flex; flex-direction: column; align-items: center; flex: 1; }
+.tl-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--rose); border: 2px solid var(--surface); outline: 2px solid var(--rose); margin-top: 22px; flex-shrink: 0; }.tl-line { width: 1px; background: var(--border-strong); flex: 1; margin-top: 4px; }
+.tl-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 18px; margin: 10px 0 10px 14px; }
+.tl-card-title-input { width: 100%; font-family: var(--font-display); font-size: 15px; font-weight: 500; color: var(--ink); background: transparent; border: none; outline: none; }
+.tl-card-title-input:focus { background: var(--surface2); border-radius: 4px; padding-left: 4px; }
+.tl-meta { display: flex; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
+.tl-meta-input { font-family: var(--font-body); font-size: 12px; color: var(--ink-mute); background: transparent; border: none; outline: none; min-width: 60px; }
+.tl-meta-input:focus { background: var(--surface2); border-radius: 4px; padding: 1px 6px; color: var(--ink); }
+.tl-meta-input::placeholder { color: var(--ink-mute); }
+.tl-time-input { font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--rose); background: transparent; border: none; outline: none; width: 80px; text-align: center; padding-top: 18px; }
+.tl-add-btn { display: flex; align-items: center; gap: 6px; background: none; border: 0.5px dashed var(--border-strong); border-radius: var(--radius); padding: 10px 18px; color: var(--ink-mute); font-family: var(--font-body); font-size: 13px; cursor: pointer; margin: 8px 0 8px 104px; transition: all .15s; }
+.tl-add-btn:hover { background: var(--rose-light); color: var(--rose-dark); border-color: var(--rose); }
+
+.add-item-btn { display:flex; align-items:center; gap:6px; background:none; border:0.5px dashed var(--border-strong); border-radius:var(--radius); padding:7px 14px; color:var(--ink-mute); font-family:var(--font-body); font-size:12px; cursor:pointer; margin:6px 0 4px; width:100%; transition:all .15s; }
+.add-item-btn:hover { background:var(--rose-light); color:var(--rose-dark); border-color:var(--rose); border-style:solid; }
+
+/* ── Cat notes ── */
+.cat-notes-wrap { padding: 0 2px 10px; }
+.cat-notes-textarea { width: 100%; font-family: var(--font-body); font-size: 13px; color: var(--ink-soft); background: var(--gold-light); border: 0.5px solid rgba(196,151,58,.25); border-radius: var(--radius); padding: 10px 14px; resize: vertical; min-height: 62px; outline: none; line-height: 1.55; transition: border-color .15s; }
+.cat-notes-textarea:focus { border-color: var(--gold); background: #FEFAF0; }
+.cat-notes-textarea::placeholder { color: var(--ink-mute); font-style: italic; }
+.cat-notes-label { font-size: 10px; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; color: var(--sage); margin-bottom: 5px; display: flex; align-items: center; gap: 5px; }
+
+/* ── Timeline experience ── */
+.tl-experience-wrap { margin-top: 10px; border-top: 0.5px solid var(--border); padding-top: 10px; }
+.tl-experience-label { font-size: 10px; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; color: var(--sage); margin-bottom: 5px; }
+.tl-experience-textarea { width: 100%; font-family: var(--font-body); font-size: 12px; color: var(--ink-soft); background: var(--rose-light); border: 0.5px solid rgba(201,102,122,.2); border-radius: var(--radius); padding: 8px 12px; resize: vertical; min-height: 54px; outline: none; line-height: 1.5; transition: border-color .15s; }
+.tl-experience-textarea:focus { border-color: var(--rose); }
+.tl-experience-textarea::placeholder { color: var(--ink-mute); font-style: italic; }
+
+/* ── Guests v2 ── */
+.guests-toolbar { display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap; }
+.mesa-group { margin-bottom:20px; }
+.mesa-header { display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--surface2);border-radius:var(--radius);margin-bottom:4px;border:0.5px solid var(--border);cursor:pointer; }
+.mesa-header:hover { border-color:var(--rose); }
+.mesa-badge { font-family:var(--font-heading);font-size:15px;font-weight:500;color:var(--rose-dark); }
+.mesa-count { font-size:12px;color:var(--ink-mute);margin-left:auto; }
+.mesa-side-novio { display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;background:var(--sage-light);color:var(--sage-dark); }
+.mesa-side-novia { display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;background:var(--rose-light);color:var(--rose-dark); }
+.mesa-side-mix { display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;background:var(--gold-light);color:var(--gold); }
+.guests-table { width:100%;border-collapse:collapse;min-width:680px; }
+.guests-table th { font-size:11px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-mute);padding:7px 10px;text-align:left;border-bottom:0.5px solid var(--border-strong);white-space:nowrap; }
+.guests-table td { padding:6px 10px;border-bottom:0.5px solid var(--border);vertical-align:middle; }
+.guests-table tr:hover td { background:var(--surface2); }
+.guests-table-wrap { overflow-x:auto; }
+.conf-sel { font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;border:none;cursor:pointer;font-family:var(--font-body);outline:none; }
+.c-conf { background:var(--s-ok-bg);color:var(--s-ok); }
+.c-pend { background:var(--s-progress-bg);color:var(--s-progress); }
+.c-no   { background:var(--s-cancel-bg);color:var(--s-cancel); }
+.lado-tag { font-size:10px;padding:1px 7px;border-radius:20px;font-weight:500; }
+.lado-novio { background:var(--sage-light);color:var(--sage-dark); }
+.lado-novia { background:var(--rose-light);color:var(--rose-dark); }
+
+/* ── Platiquemos ── */
+.plat-note { background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:12px;display:flex;align-items:flex-start;gap:14px; }
+.plat-note-icon { width:40px;height:40px;border-radius:50%;background:var(--rose-light);color:var(--rose);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0; }
+.plat-note-body { flex:1;min-width:0; }
+.plat-note-meta { display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap; }
+.plat-note-label { font-weight:500;font-size:13px;color:var(--ink); }
+.plat-note-time { font-size:11px;color:var(--ink-mute); }
+.plat-note-dur { font-size:11px;background:var(--rose-light);color:var(--rose-dark);padding:1px 8px;border-radius:20px; }
+.plat-audio { width:100%;height:36px;border-radius:var(--radius);outline:none;accent-color:var(--rose); }
+.plat-note-text { margin-top:8px; }
+.plat-note-textarea { width:100%;font-family:var(--font-body);font-size:12px;color:var(--ink-soft);background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius);padding:7px 10px;resize:none;outline:none;line-height:1.5; }
+.plat-note-textarea:focus { border-color:var(--rose); }
+.plat-note-textarea::placeholder { color:var(--ink-mute);font-style:italic; }
+.plat-del { background:none;border:none;color:var(--ink-mute);cursor:pointer;font-size:14px;padding:4px 6px;border-radius:6px;flex-shrink:0; }
+.plat-del:hover { color:var(--s-cancel);background:var(--s-cancel-bg); }
+@keyframes pulse-ring { 0%{box-shadow:0 0 0 0 rgba(125,41,53,.5)} 70%{box-shadow:0 0 0 16px rgba(125,41,53,0)} 100%{box-shadow:0 0 0 0 rgba(125,41,53,0)} }
+.recording-pulse { animation: pulse-ring 1.2s ease-out infinite !important; }
+.wave-bar { width:4px;border-radius:4px;background:var(--rose);animation:wave-anim 0.6s ease-in-out infinite alternate; }
+@keyframes wave-anim { from{height:6px;opacity:.5} to{height:22px;opacity:1} }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 10px; }
+
+/* ── Ornament ── */
+.ornament { color: var(--rose); font-size: 11px; margin: 0 6px; opacity: .6; }
+
+@media print {
+  .sidebar, .topbar { display: none; }
+  .app { display: block; }
+  .main { padding: 0; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="topbar">
+  <button class="btn-menu" onclick="toggleSidebar()" aria-label="Menú">&#9776;</button>
+  <span class="topbar-logo">Nydia &amp; Octavio</span>
+  <span style="color:var(--gold-mid);font-size:13px;opacity:.7">✦</span>
+  <span style="font-family:var(--font-heading);font-size:14px;color:var(--sage);letter-spacing:.04em;white-space:nowrap">Wedding Planner</span>
+  <div class="topbar-spacer"></div>
+  <button class="btn-export" onclick="exportCSV()">&#8595; CSV</button>
+</div>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-section" style="margin-top:8px">Vistas</div>
+  <div class="nav-item active" onclick="showPage('dashboard',this)">
+    <span class="nav-icon">&#9632;</span> Dashboard
+  </div>
+  <div class="nav-item" onclick="showPage('tracker',this)">
+    <span class="nav-icon">&#9745;</span> Tracker de proveedores
+  </div>
+  <div class="nav-item" onclick="showPage('guests',this)">
+    <span class="nav-icon">&#9786;</span> Lista de invitados
+  </div>
+  <div class="nav-item" onclick="showPage('timeline',this)">
+    <span class="nav-icon">&#9679;</span> Timeline del día
+  </div>
+  <div class="nav-item" onclick="showPage('platiquemos',this)">
+    <span class="nav-icon">&#127908;</span> Platiquemos
+  </div>
+  <div style="margin: 16px 16px 8px; border-top: 0.5px solid var(--border);"></div>
+  <a href="https://chat.whatsapp.com/L6icPq3Tth79h67F9nXFxS" target="_blank" style="display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13px;color:#1B8C4E;text-decoration:none;border-left:2px solid transparent;transition:all .12s;" onmouseover="this.style.background='#EAF5EE'" onmouseout="this.style.background='transparent'">
+    <span style="font-size:16px">&#128172;</span> Grupo WhatsApp
+  </a>
+  <div class="sidebar-section" style="margin-top:16px">Categorías</div>
+  <div id="cat-nav"></div>
+</nav>
+
+<main class="main">
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="page-title">Resumen general</div>
+  <div class="page-sub">Vista ejecutiva del estado de la boda</div>
+  <div class="metrics" id="dash-metrics"></div>
+  <div class="dash-cats" id="dash-cats"></div>
+</div>
+
+<!-- TRACKER -->
+<div class="page" id="page-tracker">
+  <div class="page-title">Tracker de proveedores</div>
+  <div class="page-sub">Gestiona proveedor, contacto, gestor y estatus de cada ítem</div>
+  <div class="tracker-toolbar">
+    <div class="search-wrap">
+      <span style="color:var(--ink-mute);font-size:14px">&#128269;</span>
+      <input type="text" id="search-input" placeholder="Buscar ítem..." oninput="filterTracker()">
+    </div>
+    <select class="filter-sel" id="status-filter" onchange="filterTracker()">
+      <option value="">Todos los estatus</option>
+      <option value="Sin iniciar">Sin iniciar</option>
+      <option value="En proceso">En proceso</option>
+      <option value="Confirmado">Confirmado</option>
+      <option value="Pagado">Pagado</option>
+      <option value="Cancelado">Cancelado</option>
+    </select>
+  </div>
+  <div id="tracker-sections"></div>
+</div>
+
+<!-- GUESTS -->
+<div class="page" id="page-guests">
+  <div class="page-title">Lista de invitados</div>
+  <div class="page-sub">Nydia &amp; Octavio — gestión por mesa, lado y relación</div>
+
+  <div class="guests-toolbar">
+    <div class="search-wrap" style="max-width:240px">
+      <span style="color:var(--ink-mute);font-size:14px">&#128269;</span>
+      <input type="text" id="guest-search" placeholder="Buscar nombre…" oninput="filterGuests()">
+    </div>
+    <select class="filter-sel" id="guest-filter-lado" onchange="filterGuests()">
+      <option value="">Novio y Novia</option>
+      <option value="NOVIO">Lado Novio</option>
+      <option value="NOVIA">Lado Novia</option>
+    </select>
+    <select class="filter-sel" id="guest-filter-conf" onchange="filterGuests()">
+      <option value="">Todos los estatus</option>
+      <option value="Confirmado">Confirmado</option>
+      <option value="Pendiente">Pendiente</option>
+      <option value="No asiste">No asiste</option>
+    </select>
+    <div class="topbar-spacer"></div>
+    <div id="guest-metrics" style="display:flex;gap:14px;font-size:13px;color:var(--ink-mute);flex-wrap:wrap"></div>
+    <button class="btn-add" onclick="addGuest()">+ Agregar</button>
+  </div>
+
+  <div id="guests-by-mesa"></div>
+</div>
+
+<!-- TIMELINE -->
+<div class="page" id="page-timeline">
+  <div class="page-title">Timeline del día</div>
+  <div class="page-sub">Orden del evento — edita cada momento directamente</div>
+  <div class="timeline" id="timeline-wrap"></div>
+  <button class="tl-add-btn" onclick="addTimelineItem()">+ Agregar momento</button>
+</div>
+
+<!-- PLATIQUEMOS -->
+<div class="page" id="page-platiquemos">
+  <div class="page-title">&#127908; Platiquemos</div>
+  <div class="page-sub">Graba notas de voz para capturar ideas, decisiones y detalles sobre la boda</div>
+
+  <div id="plat-recorder-area" style="background:var(--rose-light);border:0.5px solid rgba(201,102,122,.25);border-radius:var(--radius-lg);padding:24px;text-align:center;margin-bottom:28px;">
+    <div id="plat-status" style="font-size:13px;color:var(--ink-mute);margin-bottom:16px;">Presiona el botón para empezar a grabar</div>
+    <button id="plat-btn" onclick="toggleRecording()" style="width:72px;height:72px;border-radius:50%;border:none;background:var(--rose);color:#fff;font-size:28px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:transform .15s,background .15s;box-shadow:0 0 0 0 rgba(201,102,122,.4);">&#127908;</button>
+    <div id="plat-timer" style="font-family:var(--font-display);font-size:22px;color:var(--rose-dark);margin-top:14px;letter-spacing:.05em;display:none;">0:00</div>
+    <div id="plat-wave" style="display:none;margin-top:10px;height:28px;align-items:center;justify-content:center;gap:3px;" aria-hidden="true"></div>
+  </div>
+
+  <div id="plat-notes-list"></div>
+  <div id="plat-empty" style="text-align:center;padding:32px 0;color:var(--ink-mute);font-size:13px;">Aún no hay notas de voz. ¡Graba la primera!</div>
+</div>
+
+</main>
+</div>
+
+<!-- Loading overlay -->
+<div id="loading-overlay" style="display:flex;position:fixed;inset:0;background:var(--surface);z-index:100;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+  <div style="font-family:var(--font-display);font-size:42px;color:var(--rose-dark);">Nydia &amp; Octavio</div>
+  <div style="font-family:var(--font-heading);font-size:15px;color:var(--sage);letter-spacing:.08em;">Cargando tu wedding planner…</div>
+  <div style="display:flex;gap:6px;margin-top:8px">
+    <div style="width:8px;height:8px;border-radius:50%;background:var(--rose);animation:dot-pulse 1.2s ease-in-out infinite"></div>
+    <div style="width:8px;height:8px;border-radius:50%;background:var(--rose);animation:dot-pulse 1.2s ease-in-out .2s infinite"></div>
+    <div style="width:8px;height:8px;border-radius:50%;background:var(--rose);animation:dot-pulse 1.2s ease-in-out .4s infinite"></div>
+  </div>
+</div>
+
+<!-- Sync indicator -->
+<div id="sync-indicator" style="position:fixed;bottom:16px;right:16px;background:var(--sage);color:#fff;font-size:12px;padding:6px 14px;border-radius:20px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:50;font-family:var(--font-body)">
+  &#8593; Guardando…
+</div>
+
+<style>
+@keyframes dot-pulse { 0%,100%{opacity:.2;transform:scale(.8)} 50%{opacity:1;transform:scale(1)} }
+</style>
+
+<script>
+/* ── Supabase config ── */
+const SB_URL = "https://qoaxifnrlxxwwdzqxmot.supabase.co";
+const SB_KEY = "sb_publishable_P72GEsWtoUAfqiAev-oFig_SOs1cdwv";
+const sbHeaders = {"apikey": SB_KEY, "Authorization": "Bearer "+SB_KEY, "Content-Type": "application/json", "Prefer": "return=representation"};
+
+async function sbGet(table, params="") {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, {headers: sbHeaders});
+  return r.ok ? r.json() : [];
+}
+async function sbInsert(table, body) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}`, {method:"POST", headers: sbHeaders, body: JSON.stringify(body)});
+  return r.ok ? r.json() : null;
+}
+async function sbUpdate(table, id, body) {
+  await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {method:"PATCH", headers: sbHeaders, body: JSON.stringify(body)});
+}
+async function sbUpsert(table, body) {
+  await fetch(`${SB_URL}/rest/v1/${table}`, {method:"POST", headers: {...sbHeaders, "Prefer":"resolution=merge-duplicates,return=representation"}, body: JSON.stringify(body)});
+}
+async function sbDelete(table, id) {
+  await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {method:"DELETE", headers: sbHeaders});
+}
+
+/* ── Constants ── */
+const CATS = [
+  {id:"venue",     name:"Venue y ceremonia",        icon:"&#127968;"},
+  {id:"musica",    name:"Música",                   icon:"&#127925;"},
+  {id:"sonido",    name:"Sonido e iluminación",     icon:"&#128266;"},
+  {id:"comida",    name:"Comida y catering",        icon:"&#127859;"},
+  {id:"bebidas",   name:"Bebidas y bar",            icon:"&#127863;"},
+  {id:"mobiliario",name:"Mobiliario",              icon:"&#129681;"},
+  {id:"loza",      name:"Loza y mantelería",        icon:"&#129381;"},
+  {id:"flores",    name:"Flores y decoración",      icon:"&#127804;"},
+  {id:"logistica", name:"Logística y coordinación", icon:"&#128203;"},
+  {id:"foto",      name:"Foto y video",             icon:"&#128247;"},
+  {id:"invitados", name:"Invitados y papelería",    icon:"&#128140;"},
+];
+
+const ITEMS_RAW = {
+  venue:["Venue principal / salón","Ceremonia civil (notaría / registro)","Ceremonia religiosa / simbólica","Área de cóctel / recepción previa","Estacionamiento / valet","Hospedaje para novios"],
+  musica:["DJ principal","Banda en vivo","Música ceremonia (cuarteto / violinista)","Música coctel (trío / jazz)","Sistema de karaoke","Lista canciones especiales (primer baile, vals...)","Playlist de fondo (cena)"],
+  sonido:["Equipo de sonido principal","Micrófonos inalámbricos","Monitor / retorno escenario","Pantallas LED / proyector","Iluminación DJ / pista","Iluminación ambiental salón","Generador de respaldo"],
+  comida:["Catering principal","Menú entrada (entrantes / sopa)","Menú fuerte (plato principal)","Menú vegetariano / vegano","Menú infantil","Charcutería / tabla de quesos","Estación de tacos / carnitas","Estación de pasta / wok","Postres (pastelillos, mini porciones)","Pastel de bodas","Candy bar / mesa de dulces"],
+  bebidas:["Barra libre (alcohol)","Cócteles de bienvenida (signature drink)","Vino mesa (blanco / tinto / rosé)","Cerveza","Bebidas sin alcohol / aguas frescas","Café / té","Hielera / máquina de hielos","Rome hielos","Dispensadores de bebidas","Bartenders"],
+  mobiliario:["Mesas redondas / rectangulares","Sillas tiffany / chairs","Mesa de novios / sweetheart table","Mesa de regalo / libro de firmas","Mesa de pastel","Mesa de bebidas / bar","Lounge / área de descanso","Escenario / tarima","Altar / arco de ceremonia","Atril / podio"],
+  loza:["Platos base / presentación","Platos entrada","Platos fuertes","Platos de postre","Copas de vino","Copas de agua","Flautas de champaña (brindis)","Tazas café / té","Cubiertos (tenedores, cuchillos, cucharas)","Charolas / bandejas meseros","Servilletas de tela","Servilletas de papel (coctel / bar)","Saleros y pimenteros"],
+  flores:["Ramo de novia","Ramos damas de honor","Boutonnières / prendedores","Centros de mesa (florales)","Decoración altar / arco","Pétalos corredor ceremonia","Arreglos entrada / recepción","Flores mesa de regalo / pastel","Guirnaldas / greenery"],
+  logistica:["Coordinador de evento en sitio","Transporte novios (carro, van, etc.)","Transporte invitados (shuttle)","Protocolo de llegada / recepción","Orden del día / timeline detallado","Libro de firmas / fotomatón","Animador / MC / maestro de ceremonias","Niñera / área infantil","Seguridad","Limpieza y desmontaje"],
+  foto:["Fotógrafo principal","Videógrafo","Segunda cámara / asistente foto","Drone / toma aérea","Cabina fotográfica (Photo booth)","Álbum de fotos (impreso)","Video highlight / same day edit"],
+  invitados:["Lista total de invitados","Invitaciones impresas / digitales","Confirmación de asistencia (RSVP)","Mapa de mesas / seating chart","Menú cards por mesa","Recuerdos / favors para invitados","Etiquetas / place cards","Programa / orden de evento impreso"],
+};
+
+const TIMELINE_DEFAULT = [
+  {time:"10:00 am",title:"Llegada de proveedores y montaje",resp:"Coordinador",notas:"Verificar acceso al venue",exp:""},
+  {time:"12:00 pm",title:"Prueba de sonido y música",resp:"DJ / Técnico",notas:"",exp:""},
+  {time:"13:00 pm",title:"Llegada de fotógrafo y videógrafo",resp:"Wedding Planner",notas:"",exp:""},
+  {time:"14:00 pm",title:"Preparación de novios",resp:"Wedding Planner",notas:"",exp:""},
+  {time:"16:00 pm",title:"Llegada de invitados y cóctel de bienvenida",resp:"Coordinador",notas:"Recepción con drinks de bienvenida",exp:""},
+  {time:"17:00 pm",title:"Inicio de ceremonia",resp:"Notario / Oficial",notas:"",exp:""},
+  {time:"17:45 pm",title:"Sesión de fotos",resp:"Fotógrafo",notas:"",exp:""},
+  {time:"18:30 pm",title:"Cena / Banquete",resp:"Catering",notas:"Verificar menús especiales",exp:""},
+  {time:"19:00 pm",title:"Primer baile",resp:"DJ",notas:"",exp:""},
+  {time:"19:30 pm",title:"Corte del pastel",resp:"Wedding Planner",notas:"",exp:""},
+  {time:"20:00 pm",title:"Apertura de pista de baile",resp:"DJ / Banda",notas:"",exp:""},
+  {time:"22:00 pm",title:"Lanzamiento del ramo",resp:"Wedding Planner",notas:"",exp:""},
+  {time:"01:00 am",title:"Cierre de evento y desmontaje",resp:"Coordinador",notas:"",exp:""},
+];
+
+const STATUS_CLASS = {"Sin iniciar":"s-none","En proceso":"s-progress","Confirmado":"s-ok","Pagado":"s-paid","Cancelado":"s-cancel"};
+
+/* ── State ── */
+let items = {};
+CATS.forEach(c => { items[c.id] = []; });
+let catNotes = {};
+CATS.forEach(c => { catNotes[c.id] = ""; });
+let guests = [];
+let timeline = [];
+let platNotes = [];
+
+/* ── Sync indicator ── */
+function setSyncing(on) {
+  const el = document.getElementById("sync-indicator");
+  if(el) el.style.opacity = on ? "1" : "0";
+}
+
+/* ── Load all data from Supabase ── */
+async function loadAll() {
+  showLoading(true);
+  try {
+    const [dbItems, dbCatNotes, dbGuests, dbTimeline, dbPlat] = await Promise.all([
+      sbGet("tracker_items","order=orden.asc,created_at.asc"),
+      sbGet("cat_notes"),
+      sbGet("guests","order=created_at.asc"),
+      sbGet("timeline","order=orden.asc,created_at.asc"),
+      sbGet("plat_notes","order=created_at.desc"),
+    ]);
+
+    /* tracker items — if empty, seed with defaults */
+    CATS.forEach(c => { items[c.id] = []; });
+    if(dbItems.length === 0) {
+      await seedTrackerItems();
+    } else {
+      dbItems.forEach(it => {
+        if(items[it.cat_id]) items[it.cat_id].push(it);
+      });
+    }
+
+    /* cat notes */
+    dbCatNotes.forEach(n => { catNotes[n.cat_id] = n.nota || ""; });
+
+    /* guests */
+    if(dbGuests.length === 0) {
+      await seedGuests();
+    } else {
+      guests = dbGuests;
+    }
+
+    /* timeline — if empty, seed with defaults */
+    if(dbTimeline.length === 0) {
+      await seedTimeline();
+    } else {
+      timeline = dbTimeline;
+    }
+
+    /* plat notes — rebuild blob URLs from base64 */
+    platNotes = dbPlat.map(n => {
+      let url = "";
+      if(n.audio_b64) {
+        try {
+          const byteStr = atob(n.audio_b64);
+          const arr = new Uint8Array(byteStr.length);
+          for(let i=0;i<byteStr.length;i++) arr[i]=byteStr.charCodeAt(i);
+          const blob = new Blob([arr], {type:"audio/webm"});
+          url = URL.createObjectURL(blob);
+        } catch(e) {}
+      }
+      return {...n, url};
+    });
+
+  } catch(e) {
+    console.error("Error cargando datos:", e);
+  }
+  showLoading(false);
+  renderDashboard();
+  renderCatNav();
+}
+
+async function seedTrackerItems() {
+  const rows = [];
+  CATS.forEach((c,ci) => {
+    ITEMS_RAW[c.id].forEach((name,i) => {
+      rows.push({cat_id:c.id, name, proveedor:"", contacto:"", gestor:"", status:"Sin iniciar", notas:"", orden:i});
+    });
+  });
+  const result = await sbInsert("tracker_items", rows);
+  if(result) result.forEach(it => { if(items[it.cat_id]) items[it.cat_id].push(it); });
+}
+
+async function seedTimeline() {
+  const rows = TIMELINE_DEFAULT.map((ev,i) => ({...ev, orden:i}));
+  const result = await sbInsert("timeline", rows);
+  if(result) timeline = result;
+}
+
+function showLoading(on) {
+  const el = document.getElementById("loading-overlay");
+  if(el) el.style.display = on ? "flex" : "none";
+}
+
+/* ── Stats ── */
+function getStats() {
+  let total=0, sinI=0, progress=0, conf=0, cancel=0;
+  CATS.forEach(c => items[c.id].forEach(it => {
+    total++;
+    if(it.status==="Sin iniciar") sinI++;
+    else if(it.status==="En proceso") progress++;
+    else if(it.status==="Confirmado"||it.status==="Pagado") conf++;
+    else if(it.status==="Cancelado") cancel++;
+  }));
+  return {total, sinI, progress, conf, cancel};
+}
+
+function getCatStats(catId) {
+  const arr = items[catId] || [];
+  let total=arr.length, conf=0, progress=0;
+  arr.forEach(it => {
+    if(it.status==="Confirmado"||it.status==="Pagado") conf++;
+    else if(it.status==="En proceso") progress++;
+  });
+  return {total, conf, progress, pct: total ? Math.round(conf/total*100) : 0};
+}
+
+/* ── Dashboard ── */
+function renderDashboard() {
+  const s = getStats();
+  document.getElementById("dash-metrics").innerHTML = `
+    <div class="metric rose"><div class="metric-num">${s.total}</div><div class="metric-lbl">Total ítems</div></div>
+    <div class="metric green"><div class="metric-num">${s.conf}</div><div class="metric-lbl">Confirmados / Pagados</div></div>
+    <div class="metric gold"><div class="metric-num">${s.progress}</div><div class="metric-lbl">En proceso</div></div>
+    <div class="metric"><div class="metric-num" style="color:var(--ink-mute)">${s.sinI}</div><div class="metric-lbl">Sin iniciar</div></div>
+    <div class="metric red"><div class="metric-num">${s.cancel}</div><div class="metric-lbl">Cancelados</div></div>
+    <div class="metric"><div class="metric-num" style="color:var(--gold)">${guests.length}</div><div class="metric-lbl">Invitados registrados</div></div>
+  `;
+  document.getElementById("dash-cats").innerHTML = CATS.map(c => {
+    const st = getCatStats(c.id);
+    return `<div class="cat-card" onclick="goTracker('${c.id}')">
+      <div class="cat-card-top"><div class="cat-icon">${c.icon}</div>
+        <div><div class="cat-name">${c.name}</div><div class="cat-count">${st.total} ítems</div></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${st.pct}%"></div></div>
+      <div class="cat-stats">
+        <span class="stat-pill" style="background:var(--s-ok-bg);color:var(--s-ok)">${st.conf} confirmados</span>
+        <span class="stat-pill" style="background:var(--s-progress-bg);color:var(--s-progress)">${st.progress} en proceso</span>
+        <span style="margin-left:auto;font-size:12px;color:var(--ink-mute)">${st.pct}%</span>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderCatNav() {
+  document.getElementById("cat-nav").innerHTML = CATS.map(c => `
+    <div class="nav-item" onclick="goTracker('${c.id}')">
+      <span class="nav-icon">${c.icon}</span> ${c.name}
+      <span class="nav-badge">${getCatStats(c.id).conf}/${items[c.id].length}</span>
+    </div>`).join("");
+}
+
+/* ── Tracker ── */
+function renderTracker() {
+  const q = document.getElementById("search-input").value.toLowerCase();
+  const sf = document.getElementById("status-filter").value;
+  let html = "";
+  CATS.forEach(c => {
+    const filtered = (items[c.id]||[]).filter(it =>
+      (!q || it.name.toLowerCase().includes(q) || (it.proveedor||"").toLowerCase().includes(q)) &&
+      (!sf || it.status===sf)
+    );
+    if(!filtered.length) return;
+    const st = getCatStats(c.id);
+    html += `<div class="cat-section" id="sec-${c.id}">
+      <div class="cat-section-header" onclick="toggleSection('${c.id}')">
+        <div class="cat-section-icon">${c.icon}</div>
+        <span class="cat-section-name">${c.name}</span>
+        <span class="cat-section-prog">${st.conf}/${st.total} confirmados</span>
+        <span class="cat-section-toggle open" id="tog-${c.id}">&#8964;</span>
+      </div>
+      <div id="tbody-${c.id}">
+      <div class="cat-notes-wrap">
+        <div class="cat-notes-label">&#9998; Visión / Alcance / Retos</div>
+        <textarea class="cat-notes-textarea" placeholder="Escribe aquí la visión, alcance o retos de esta categoría…" onchange="saveCatNote('${c.id}',this.value)">${catNotes[c.id]||""}</textarea>
+      </div>
+      <table class="items-table">
+        <thead><tr>
+          <th style="width:26%">Ítem</th><th style="width:18%">Proveedor</th>
+          <th style="width:16%">Contacto</th><th style="width:13%">Gestor</th>
+          <th style="width:13%">Estatus</th><th>Notas</th><th style="width:32px"></th>
+        </tr></thead>
+        <tbody>${filtered.map(it => {
+          const realIdx = items[c.id].indexOf(it);
+          return `<tr>
+            <td><input class="cell-input" style="font-weight:500" placeholder="Nombre del ítem…" value="${(it.name||"").replace(/"/g,'&quot;')}" onchange="updateItem('${c.id}',${realIdx},'name',this.value)"></td>
+            <td><input class="cell-input" placeholder="Proveedor…" value="${it.proveedor||""}" onchange="updateItem('${c.id}',${realIdx},'proveedor',this.value)"></td>
+            <td><input class="cell-input" placeholder="Tel / email…" value="${it.contacto||""}" onchange="updateItem('${c.id}',${realIdx},'contacto',this.value)"></td>
+            <td><input class="cell-input" placeholder="Quién gestiona…" value="${it.gestor||""}" onchange="updateItem('${c.id}',${realIdx},'gestor',this.value)"></td>
+            <td><select class="status-sel ${STATUS_CLASS[it.status]||'s-none'}" onchange="updateItem('${c.id}',${realIdx},'status',this.value);updateStatusStyle(this)">
+              <option ${it.status==="Sin iniciar"?"selected":""}>Sin iniciar</option>
+              <option ${it.status==="En proceso"?"selected":""}>En proceso</option>
+              <option ${it.status==="Confirmado"?"selected":""}>Confirmado</option>
+              <option ${it.status==="Pagado"?"selected":""}>Pagado</option>
+              <option ${it.status==="Cancelado"?"selected":""}>Cancelado</option>
+            </select></td>
+            <td><input class="cell-input" placeholder="Notas…" value="${it.notas||""}" onchange="updateItem('${c.id}',${realIdx},'notas',this.value)"></td>
+            <td><button class="btn-del" onclick="deleteItem('${c.id}',${realIdx})" title="Eliminar">&#10005;</button></td>
+          </tr>`;
+        }).join("")}</tbody>
+      </table>
+      <button class="add-item-btn" onclick="addItem('${c.id}')">+ Agregar ítem</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById("tracker-sections").innerHTML = html || `<div style="color:var(--ink-mute);font-size:14px;padding:32px 0;text-align:center">Sin resultados.</div>`;
+}
+
+function toggleSection(id) {
+  const body = document.getElementById("tbody-"+id);
+  const tog = document.getElementById("tog-"+id);
+  if(body.style.display==="none"){body.style.display="";tog.classList.add("open");}
+  else{body.style.display="none";tog.classList.remove("open");}
+}
+
+let updateTimers = {};
+function updateItem(catId, idx, field, val) {
+  items[catId][idx][field] = val;
+  renderDashboard(); renderCatNav();
+  const id = items[catId][idx].id;
+  clearTimeout(updateTimers[id]);
+  updateTimers[id] = setTimeout(async () => {
+    setSyncing(true);
+    await sbUpdate("tracker_items", id, {[field]: val});
+    setSyncing(false);
+  }, 600);
+}
+
+async function addItem(catId) {
+  setSyncing(true);
+  const orden = items[catId].length;
+  const result = await sbInsert("tracker_items", [{cat_id:catId, name:"Nuevo ítem", proveedor:"", contacto:"", gestor:"", status:"Sin iniciar", notas:"", orden}]);
+  if(result && result[0]) {
+    items[catId].push(result[0]);
+    renderTracker(); renderDashboard(); renderCatNav();
+    setTimeout(() => {
+      const sec = document.getElementById("tbody-"+catId);
+      if(sec){ const rows=sec.querySelectorAll("tbody tr"); const last=rows[rows.length-1]; if(last){const inp=last.querySelector("input");if(inp){inp.focus();inp.select();}last.scrollIntoView({behavior:"smooth",block:"nearest"});}}
+    }, 60);
+  }
+  setSyncing(false);
+}
+
+async function deleteItem(catId, idx) {
+  if(items[catId].length===1){if(!confirm("¿Eliminar el único ítem?"))return;}
+  const id = items[catId][idx].id;
+  setSyncing(true);
+  items[catId].splice(idx,1);
+  renderTracker(); renderDashboard(); renderCatNav();
+  await sbDelete("tracker_items", id);
+  setSyncing(false);
+}
+
+let catNoteTimers = {};
+function saveCatNote(catId, val) {
+  catNotes[catId] = val;
+  clearTimeout(catNoteTimers[catId]);
+  catNoteTimers[catId] = setTimeout(async () => {
+    setSyncing(true);
+    await sbUpsert("cat_notes", {cat_id: catId, nota: val});
+    setSyncing(false);
+  }, 700);
+}
+
+function updateStatusStyle(sel) {
+  sel.className = "status-sel " + (STATUS_CLASS[sel.value]||"s-none");
+}
+function filterTracker() { renderTracker(); }
+
+/* ── Guests ── */
+const GUESTS_SEED = [
+  {name:"NOVIA",contacto:"844 160 5030",conf:"Confirmado",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:""},
+  {name:"NOVIO",contacto:"812 466 5528",conf:"Confirmado",tipo:"A",lado:"NOVIO",relacion:"",mesa_grupo:""},
+  {name:"Abiur Juárez",contacto:"811 050 3933",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Oficina",mesa_grupo:"Mesa oficina"},
+  {name:"Abiur Juárez Esposa",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Oficina",mesa_grupo:"Mesa oficina"},
+  {name:"Abiur Juárez Hija",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Oficina",mesa_grupo:"Mesa oficina"},
+  {name:"Abiur Juárez Hija",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Oficina",mesa_grupo:"Mesa oficina"},
+  {name:"David Estrada",contacto:"Ya confirmó",conf:"Confirmado",tipo:"A",lado:"NOVIO",relacion:"Oficina",mesa_grupo:"Mesa oficina"},
+  {name:"David Estrada Esposa",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Oficina",mesa_grupo:"Mesa oficina"},
+  {name:"David Mata",contacto:"81 1747 4522",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Oficina",mesa_grupo:"Mesa oficina"},
+  {name:"David Mata + 1",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Oficina",mesa_grupo:"Mesa oficina"},
+  {name:"Deyanira Elizondo",contacto:"811 657 3085",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Oficina",mesa_grupo:"Mesa oficina"},
+  {name:"Deyanira Elizondo + 1",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Oficina",mesa_grupo:"Mesa oficina"},
+  {name:"Vero Ramos",contacto:"81 1203 6157",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Oficina",mesa_grupo:"Mesa oficina"},
+  {name:"Vero Ramos + 1",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Oficina",mesa_grupo:"Mesa oficina"},
+  {name:"Memo Sosa",contacto:"81 1212 5482",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Oficina",mesa_grupo:"Mesa oficina"},
+  {name:"Memo Sosa Esposa",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Oficina",mesa_grupo:"Mesa oficina"},
+  {name:"Jeany Vargas",contacto:"Ya confirmó",conf:"Confirmado",tipo:"A",lado:"NOVIO",relacion:"Oficina",mesa_grupo:"Mesa oficina"},
+  {name:"Jeany Vargas Esposo",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Oficina",mesa_grupo:"Mesa oficina"},
+  {name:"Luz Mastache",contacto:"81 2336 3338",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Amigos",mesa_grupo:"Mesa oficina"},
+  {name:"Luz Mastache + 1",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Amigos",mesa_grupo:"Mesa oficina"},
+  {name:"Fco Rdz",contacto:"81 1974 0166",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Amigos",mesa_grupo:"Mesa oficina"},
+  {name:"Fco Rdz + 1",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Amigos",mesa_grupo:"Mesa oficina"},
+  {name:"Fer Gamez",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Amigos",mesa_grupo:"Mesa oficina"},
+  {name:"Fer Gamez + 1",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Amigos",mesa_grupo:"Mesa oficina"},
+  {name:"Israel Vallejo",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Amigos",mesa_grupo:"Mesa oficina"},
+  {name:"Israel Vallejo + 1",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Amigos",mesa_grupo:"Mesa oficina"},
+  {name:"Amelia Alvarado",contacto:"No llamar",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Mamá",mesa_grupo:"Mesa oficina"},
+  {name:"Nelson Licea",contacto:"No llamar",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Hermano",mesa_grupo:"Mesa oficina"},
+  {name:"Pepe Licea",contacto:"No llamar",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Hermano",mesa_grupo:"Mesa oficina"},
+  {name:"Pepe Licea + 1",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Hermano",mesa_grupo:"Mesa oficina"},
+  {name:"Faby Licea",contacto:"No llamar",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Hermano",mesa_grupo:"Mesa oficina"},
+  {name:"Faby Licea Hija",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Hermano",mesa_grupo:"Mesa oficina"},
+  {name:"Faby Licea Hija",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Hermano",mesa_grupo:"Mesa oficina"},
+  {name:"Andrea Licea",contacto:"No llamar",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Hija",mesa_grupo:"Mesa oficina"},
+  {name:"Andrea Licea Novio",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Hija",mesa_grupo:"Mesa oficina"},
+  {name:"César Licea",contacto:"No llamar",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Hijo",mesa_grupo:"Mesa oficina"},
+  {name:"Papa de Melchor",contacto:"Ya confirmó",conf:"Confirmado",tipo:"A",lado:"NOVIO",relacion:"Consuegro",mesa_grupo:"Mesa oficina"},
+  {name:"Papa de Melchor - Esposa",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Consuegra",mesa_grupo:"Mesa oficina"},
+  {name:"Myriam Alvarado",contacto:"814 593 2066",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Prima",mesa_grupo:"Mesa oficina"},
+  {name:"Anuar Licea",contacto:"444 731 3125",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"Hermano",mesa_grupo:"Mesa oficina"},
+  {name:"Lydia Sandoval + 1",contacto:"No llamar",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"Familia",mesa_grupo:"Mesa Familiar"},
+  {name:"Braulio Jaramillo + 4",contacto:"No llamar",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"Familia",mesa_grupo:"Mesa Familiar"},
+  {name:"Juan José Araujo + 4",contacto:"No llamar",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"Familia",mesa_grupo:"Mesa Familiar"},
+  {name:"Tia Corina Sandoval + 6",contacto:"811 9084 404",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"Familia",mesa_grupo:"Mesa Familiar"},
+  {name:"Tia Adela Sandoval",contacto:"No llamar",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"Familia",mesa_grupo:"Mesa Familiar"},
+  {name:"Angelica Wale + 1",contacto:"No llamar",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"Familia",mesa_grupo:"Mesa Familiar"},
+  {name:"Juan Araujo",contacto:"871 392 9025",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"Familia",mesa_grupo:"Mesa Familiar"},
+  {name:"Miriam Valdés + 1",contacto:"844 173 5150",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 1"},
+  {name:"Montserrat Flores + 1",contacto:"862 100 2413",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 1"},
+  {name:"Griselda Cornejo + 1",contacto:"844 139 0561",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 1"},
+  {name:"Brenda Villasana + 1",contacto:"844 138 5991",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 1"},
+  {name:"Griselda Silva (5)",contacto:"844 138 5991",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 2"},
+  {name:"Patricia Recio",contacto:"844 100 1469",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 2"},
+  {name:"Kika Hernandez",contacto:"844 228 0621",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 2"},
+  {name:"Belen Alvarez + 1",contacto:"662 299 0602",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 3"},
+  {name:"Cuqui Aguirre + 1",contacto:"844 892 0919",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 3"},
+  {name:"Idalia Valero + 1",contacto:"844 277 3154",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 3"},
+  {name:"Lizette Moreno + 1",contacto:"844 247 3098",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 3"},
+  {name:"Cecilia Guevara + 1",contacto:"844 174 7916",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 3"},
+  {name:"Karla Carrazco + 1",contacto:"844 419 2282",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 3"},
+  {name:"Monica Gonzalez + 1",contacto:"844 138 7230",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 4"},
+  {name:"Yolanda Macotela + 1",contacto:"449 283 0061",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 4"},
+  {name:"Eda Bermea + 1",contacto:"844 869 2452",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 4"},
+  {name:"Padre Juan Diego",contacto:"844 869 0176",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 4"},
+  {name:"Gabriela Castro + 1",contacto:"844 893 1485",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 5"},
+  {name:"Genaro Ríos + 1",contacto:"844 427 2495",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 5"},
+  {name:"Mirna Zertuche + 1",contacto:"844 160 1942",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 5"},
+  {name:"Yessica + 1",contacto:"844 184 5763",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 5"},
+  {name:"Linda Cardenas + 1",contacto:"844 138 5991",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 5"},
+  {name:"Angelica Rivera + 1",contacto:"844 155 0941",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 5"},
+  {name:"Eloisa Flores + 1",contacto:"844 107 0470",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 5"},
+  {name:"Nidia Velez + 1",contacto:"844 245 0530",conf:"Pendiente",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:"Mesa 5"},
+];
+
+async function seedGuests() {
+  const result = await sbInsert("guests", GUESTS_SEED);
+  if(result) guests = result;
+}
+
+function renderGuests() {
+  const q = document.getElementById("guest-search").value.toLowerCase();
+  const fl = document.getElementById("guest-filter-lado").value;
+  const fc = document.getElementById("guest-filter-conf").value;
+
+  const filtered = guests.filter(g =>
+    (!q || (g.name||"").toLowerCase().includes(q) || (g.relacion||"").toLowerCase().includes(q) || (g.mesa_grupo||"").toLowerCase().includes(q)) &&
+    (!fl || g.lado === fl) &&
+    (!fc || g.conf === fc)
+  );
+
+  /* group by mesa_grupo */
+  const groups = {};
+  filtered.forEach(g => {
+    const key = g.mesa_grupo || "Sin mesa";
+    if(!groups[key]) groups[key] = [];
+    groups[key].push(g);
+  });
+
+  const confMap = {"Confirmado":"c-conf","Pendiente":"c-pend","No asiste":"c-no"};
+
+  let html = "";
+  Object.entries(groups).forEach(([mesa, glist]) => {
+    const lados = [...new Set(glist.map(g=>g.lado).filter(Boolean))];
+    const sideClass = lados.length > 1 ? "mesa-side-mix" : lados[0]==="NOVIO" ? "mesa-side-novio" : "mesa-side-novia";
+    const sideLabel = lados.length > 1 ? "Mixta" : lados[0]==="NOVIO" ? "🤵 Novio" : "👰 Novia";
+    const conf = glist.filter(g=>g.conf==="Confirmado").length;
+
+    html += `<div class="mesa-group">
+      <div class="mesa-header" onclick="toggleMesa('mesa-body-${CSS.escape(mesa)}')">
+        <span class="mesa-badge">${mesa}</span>
+        <span class="${sideClass}">${sideLabel}</span>
+        <span class="mesa-count">${conf}/${glist.length} confirmados</span>
+        <span style="color:var(--ink-mute);font-size:13px">&#8964;</span>
+      </div>
+      <div id="mesa-body-${CSS.escape(mesa)}" class="guests-table-wrap">
+        <table class="guests-table">
+          <thead><tr>
+            <th>Nombre</th><th>Teléfono</th><th>Relación</th>
+            <th>Lado</th><th>Tipo</th><th>Confirmación</th><th style="width:28px"></th>
+          </tr></thead>
+          <tbody>${glist.map(g => {
+            const ri = guests.indexOf(g);
+            const cc = confMap[g.conf]||"c-pend";
+            return `<tr>
+              <td><input class="cell-input" style="min-width:160px;font-weight:500" value="${(g.name||"").replace(/"/g,'&quot;')}" onchange="updateGuest(${ri},'name',this.value)" placeholder="Nombre…"></td>
+              <td><input class="cell-input" style="min-width:110px" value="${g.contacto||""}" onchange="updateGuest(${ri},'contacto',this.value)" placeholder="Tel…"></td>
+              <td><input class="cell-input" style="min-width:80px" value="${g.relacion||""}" onchange="updateGuest(${ri},'relacion',this.value)" placeholder="Relación…"></td>
+              <td>
+                <select class="conf-sel ${g.lado==='NOVIO'?'lado-novio':'lado-novia'}" onchange="updateGuest(${ri},'lado',this.value);renderGuests()">
+                  <option ${g.lado==='NOVIO'?'selected':''}>NOVIO</option>
+                  <option ${g.lado==='NOVIA'?'selected':''}>NOVIA</option>
+                </select>
+              </td>
+              <td>
+                <select class="conf-sel" style="background:var(--surface2);color:var(--ink-soft)" onchange="updateGuest(${ri},'tipo',this.value)">
+                  <option ${g.tipo==='A'?'selected':''} value="A">Adulto</option>
+                  <option ${g.tipo==='N'?'selected':''} value="N">Niño</option>
+                </select>
+              </td>
+              <td>
+                <select class="conf-sel ${cc}" onchange="updateGuest(${ri},'conf',this.value);this.className='conf-sel '+({'Confirmado':'c-conf','Pendiente':'c-pend','No asiste':'c-no'}[this.value]||'c-pend')">
+                  <option ${g.conf==='Confirmado'?'selected':''}>Confirmado</option>
+                  <option ${g.conf==='Pendiente'?'selected':''}>Pendiente</option>
+                  <option ${g.conf==='No asiste'?'selected':''}>No asiste</option>
+                </select>
+              </td>
+              <td><button class="btn-del" onclick="deleteGuest(${ri})">&#10005;</button></td>
+            </tr>`;
+          }).join("")}</tbody>
+        </table>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById("guests-by-mesa").innerHTML = html || `<div style="text-align:center;padding:32px;color:var(--ink-mute);font-size:13px">Sin invitados para ese filtro.</div>`;
+
+  /* metrics */
+  const total = guests.length;
+  const conf = guests.filter(g=>g.conf==="Confirmado").length;
+  const pend = guests.filter(g=>g.conf==="Pendiente").length;
+  const noAsiste = guests.filter(g=>g.conf==="No asiste").length;
+  const novio = guests.filter(g=>g.lado==="NOVIO").length;
+  const novia = guests.filter(g=>g.lado==="NOVIA").length;
+  document.getElementById("guest-metrics").innerHTML = `
+    <span style="color:var(--ink)">${total} invitados</span>
+    <span style="color:var(--s-ok)">✓ ${conf}</span>
+    <span style="color:var(--s-progress)">⏳ ${pend}</span>
+    <span style="color:var(--s-cancel)">✗ ${noAsiste}</span>
+    <span style="color:var(--sage-dark)">🤵 ${novio}</span>
+    <span style="color:var(--rose-dark)">👰 ${novia}</span>
+  `;
+}
+
+function toggleMesa(id) {
+  const el = document.getElementById(id);
+  if(el) el.style.display = el.style.display==="none" ? "" : "none";
+}
+
+async function addGuest() {
+  setSyncing(true);
+  const result = await sbInsert("guests",[{name:"Nuevo invitado",contacto:"",conf:"Pendiente",tipo:"A",lado:"NOVIO",relacion:"",mesa_grupo:"Sin mesa"}]);
+  if(result&&result[0]){ guests.push(result[0]); renderGuests(); }
+  setSyncing(false);
+}
+
+let guestTimers = {};
+function updateGuest(i, field, val) {
+  guests[i][field] = val;
+  renderGuests();
+  const id = guests[i].id;
+  clearTimeout(guestTimers[id]);
+  guestTimers[id] = setTimeout(async()=>{
+    setSyncing(true);
+    await sbUpdate("guests", id, {[field]: val});
+    setSyncing(false);
+  }, 600);
+}
+
+async function deleteGuest(i) {
+  const id = guests[i].id;
+  setSyncing(true);
+  guests.splice(i,1); renderGuests();
+  await sbDelete("guests", id);
+  setSyncing(false);
+}
+
+function filterGuests(){ renderGuests(); }
+
+/* ── Timeline ── */
+function renderTimeline() {
+  document.getElementById("timeline-wrap").innerHTML = timeline.map((ev,i) => `
+    <div class="tl-row">
+      <div class="tl-time-col">
+        <input class="tl-time-input" value="${ev.time||""}" onchange="updateTimeline(${i},'time',this.value)" placeholder="00:00">
+        <div class="tl-line-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      </div>
+      <div style="display:flex;align-items:stretch;width:100%">
+        <div class="tl-card" style="flex:1">
+          <input class="tl-card-title-input" value="${(ev.title||"").replace(/"/g,'&quot;')}" onchange="updateTimeline(${i},'title',this.value)" placeholder="Nombre del momento…">
+          <div class="tl-meta">
+            <span style="font-size:11px;color:var(--ink-mute);text-transform:uppercase;letter-spacing:.05em">Responsable:</span>
+            <input class="tl-meta-input" value="${ev.resp||""}" onchange="updateTimeline(${i},'resp',this.value)" placeholder="Quién coordina…">
+            <span style="font-size:12px;color:var(--border-strong)">|</span>
+            <span style="font-size:11px;color:var(--ink-mute);text-transform:uppercase;letter-spacing:.05em">Notas:</span>
+            <input class="tl-meta-input" style="flex:1" value="${ev.notas||""}" onchange="updateTimeline(${i},'notas',this.value)" placeholder="Notas de coordinación…">
+            <button class="btn-del" onclick="deleteTimeline(${i})" style="margin-left:auto">&#10005;</button>
+          </div>
+          <div class="tl-experience-wrap">
+            <div class="tl-experience-label">&#10024; Experiencia deseada</div>
+            <textarea class="tl-experience-textarea" placeholder="Describe cómo debe sentirse este momento…" onchange="updateTimeline(${i},'exp',this.value)">${ev.exp||""}</textarea>
+          </div>
+        </div>
+      </div>
+    </div>`).join("");
+}
+
+let tlTimers = {};
+function updateTimeline(i, field, val) {
+  timeline[i][field]=val;
+  const id=timeline[i].id;
+  clearTimeout(tlTimers[id]);
+  tlTimers[id]=setTimeout(async()=>{
+    setSyncing(true);
+    await sbUpdate("timeline",id,{[field]:val});
+    setSyncing(false);
+  },600);
+}
+
+async function addTimelineItem() {
+  setSyncing(true);
+  const result = await sbInsert("timeline",[{time:"00:00",title:"Nuevo momento",resp:"",notas:"",exp:"",orden:timeline.length}]);
+  if(result&&result[0]){timeline.push(result[0]);renderTimeline();}
+  setSyncing(false);
+}
+
+async function deleteTimeline(i) {
+  const id=timeline[i].id;
+  setSyncing(true);
+  timeline.splice(i,1); renderTimeline();
+  await sbDelete("timeline",id);
+  setSyncing(false);
+}
+
+/* ── Platiquemos ── */
+let mediaRecorder=null, audioChunks=[], recordingTimer=null, recordingSeconds=0;
+
+function toggleRecording() {
+  if(mediaRecorder&&mediaRecorder.state==='recording') stopRecording();
+  else startRecording();
+}
+
+function startRecording() {
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){alert('Tu navegador no soporta grabación. Prueba Chrome.');return;}
+  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+    audioChunks=[];
+    mediaRecorder=new MediaRecorder(stream);
+    mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};
+    mediaRecorder.onstop=async()=>{
+      const blob=new Blob(audioChunks,{type:'audio/webm'});
+      const url=URL.createObjectURL(blob);
+      const dur=recordingSeconds;
+      const mins=Math.floor(dur/60);
+      const secs=(dur%60).toString().padStart(2,'0');
+      const label=new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+      const reader=new FileReader();
+      reader.onloadend=async()=>{
+        const b64=reader.result.split(',')[1];
+        setSyncing(true);
+        const result=await sbInsert("plat_notes",[{time_label:label,duration:`${mins}:${secs}`,audio_b64:b64,comentario:"",escuchado:false,transcript:""}]);
+        if(result&&result[0]){platNotes.unshift({...result[0],url});renderPlatNotes();}
+        setSyncing(false);
+      };
+      reader.readAsDataURL(blob);
+      stream.getTracks().forEach(t=>t.stop());
+    };
+    mediaRecorder.start();
+    recordingSeconds=0;
+    const btn=document.getElementById('plat-btn');
+    btn.innerHTML='&#9632;'; btn.style.background='#7D2935'; btn.classList.add('recording-pulse');
+    document.getElementById('plat-status').innerHTML='<span style="color:var(--s-cancel);font-weight:500">&#9679; Grabando...</span> Toca para detener';
+    document.getElementById('plat-timer').style.display='block';
+    const wave=document.getElementById('plat-wave');
+    wave.style.display='flex';
+    wave.innerHTML=Array.from({length:9},(_,i)=>`<div class="wave-bar" style="animation-delay:${i*0.07}s"></div>`).join('');
+    recordingTimer=setInterval(()=>{
+      recordingSeconds++;
+      const m=Math.floor(recordingSeconds/60),s=(recordingSeconds%60).toString().padStart(2,'0');
+      document.getElementById('plat-timer').textContent=`${m}:${s}`;
+    },1000);
+  }).catch(()=>alert('No se pudo acceder al micrófono.'));
+}
+
+function stopRecording() {
+  if(mediaRecorder)mediaRecorder.stop();
+  clearInterval(recordingTimer);
+  const btn=document.getElementById('plat-btn');
+  btn.innerHTML='&#127908;'; btn.style.background='var(--rose)'; btn.classList.remove('recording-pulse');
+  document.getElementById('plat-status').textContent='Nota guardada. Presiona para grabar otra.';
+  document.getElementById('plat-timer').style.display='none';
+  document.getElementById('plat-wave').style.display='none';
+}
+
+function renderPlatNotes() {
+  const list=document.getElementById('plat-notes-list');
+  const empty=document.getElementById('plat-empty');
+  empty.style.display=platNotes.length?'none':'block';
+  list.innerHTML=platNotes.map((n,i)=>`
+    <div class="plat-note" id="plat-note-${n.id}" style="${n.escuchado?'opacity:.7':''}">
+      <div class="plat-note-icon" style="${n.escuchado?'background:var(--sage-light);color:var(--sage)':''}">&#127908;</div>
+      <div class="plat-note-body">
+        <div class="plat-note-meta">
+          <span class="plat-note-label">Nota de voz</span>
+          <span class="plat-note-time">${n.time_label||""}</span>
+          <span class="plat-note-dur">&#9654; ${n.duration||""}</span>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--ink-mute);cursor:pointer;margin-left:auto">
+            <input type="checkbox" ${n.escuchado?'checked':''} onchange="toggleEscuchado(${i},this.checked)" style="accent-color:var(--sage)"> Ya la escuché
+          </label>
+        </div>
+        <audio class="plat-audio" controls src="${n.url||''}"></audio>
+        ${n.transcript?`<div style="background:var(--sage-light);border-radius:var(--radius);padding:8px 12px;font-size:12px;color:var(--sage-dark);margin-top:8px;line-height:1.5"><strong>Transcripción:</strong> ${n.transcript}</div>`:''}
+        <div class="plat-note-text" style="margin-top:8px">
+          <textarea class="plat-note-textarea" rows="2" placeholder="Agrega un comentario o resumen…" onchange="updatePlatComentario(${i},this.value)">${n.comentario||""}</textarea>
+        </div>
+      </div>
+      <button class="plat-del" onclick="deletePlatNote(${i})">&#10005;</button>
+    </div>`).join('');
+}
+
+async function toggleEscuchado(i, val) {
+  platNotes[i].escuchado=val;
+  renderPlatNotes();
+  setSyncing(true);
+  await sbUpdate("plat_notes",platNotes[i].id,{escuchado:val});
+  setSyncing(false);
+}
+
+let platTimers={};
+function updatePlatComentario(i,val){
+  platNotes[i].comentario=val;
+  const id=platNotes[i].id;
+  clearTimeout(platTimers[id]);
+  platTimers[id]=setTimeout(async()=>{
+    setSyncing(true);
+    await sbUpdate("plat_notes",id,{comentario:val});
+    setSyncing(false);
+  },700);
+}
+
+async function deletePlatNote(i) {
+  const id=platNotes[i].id;
+  if(platNotes[i].url) URL.revokeObjectURL(platNotes[i].url);
+  setSyncing(true);
+  platNotes.splice(i,1); renderPlatNotes();
+  await sbDelete("plat_notes",id);
+  setSyncing(false);
+}
+
+/* ── Navigation ── */
+function showPage(id,el) {
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+  document.getElementById("page-"+id).classList.add("active");
+  if(el)el.classList.add("active");
+  if(id==="dashboard")renderDashboard();
+  if(id==="tracker")renderTracker();
+  if(id==="guests")renderGuests();
+  if(id==="timeline")renderTimeline();
+  if(id==="platiquemos")renderPlatNotes();
+  if(window.innerWidth<=680)closeSidebar();
+}
+
+function goTracker(catId) {
+  showPage("tracker",null);
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+  setTimeout(()=>{const el=document.getElementById("sec-"+catId);if(el)el.scrollIntoView({behavior:"smooth",block:"start"});},100);
+}
+
+function exportCSV() {
+  let csv="Categoría,Ítem,Proveedor,Contacto,Gestor,Estatus,Notas\n";
+  CATS.forEach(c=>items[c.id].forEach(it=>{
+    csv+=[c.name,it.name,it.proveedor,it.contacto,it.gestor,it.status,it.notas].map(v=>`"${(v||"").replace(/"/g,'""')}"`).join(",")+"\n";
+  }));
+  const a=document.createElement("a");
+  a.href="data:text/csv;charset=utf-8,\uFEFF"+encodeURIComponent(csv);
+  a.download="wedding_tracker.csv";a.click();
+}
+
+function toggleSidebar() {
+  const isMobile=window.innerWidth<=680;
+  const sidebar=document.getElementById("sidebar");
+  const app=document.querySelector(".app");
+  const overlay=document.getElementById("sidebar-overlay");
+  if(isMobile){const open=sidebar.classList.toggle("mobile-open");overlay.classList.toggle("visible",open);}
+  else{const collapsed=app.classList.toggle("sidebar-collapsed");sidebar.classList.toggle("collapsed",collapsed);}
+}
+function closeSidebar() {
+  document.getElementById("sidebar").classList.remove("mobile-open");
+  document.getElementById("sidebar-overlay").classList.remove("visible");
+}
+
+/* ── Boot ── */
+loadAll();
+</script>
+</body>
+</html>
