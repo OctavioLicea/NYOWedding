@@ -266,6 +266,25 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
 /* ── Ornament ── */
 .ornament { color: var(--rose); font-size: 11px; margin: 0 6px; opacity: .6; }
 
+/* ── Layout de mesas modal ── */
+.layout-modal-bg { position:fixed;inset:0;background:rgba(42,31,26,.55);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px; }
+.layout-modal { background:var(--surface);border-radius:var(--radius-lg);box-shadow:0 8px 40px rgba(42,31,26,.22);width:100%;max-width:960px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden; }
+.layout-modal-header { display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:0.5px solid var(--border);flex-shrink:0; }
+.layout-modal-title { font-family:var(--font-heading);font-size:20px;font-weight:500;color:var(--rose-dark);flex:1; }
+.layout-modal-close { background:none;border:none;font-size:20px;color:var(--ink-mute);cursor:pointer;padding:4px 8px;border-radius:6px; }
+.layout-modal-close:hover { background:var(--rose-light);color:var(--rose-dark); }
+.layout-modal-body { overflow-y:auto;padding:28px;display:flex;flex-wrap:wrap;gap:32px;justify-content:center;align-items:flex-start; }
+.layout-table-wrap { display:flex;flex-direction:column;align-items:center;gap:6px; }
+.layout-table-circle { position:relative;flex-shrink:0; }
+.layout-table-name { font-family:var(--font-heading);font-size:12px;font-weight:600;color:var(--rose-dark);text-align:center;padding:0 8px;line-height:1.3; }
+.layout-table-total { font-size:10px;color:var(--ink-mute);margin-top:2px;text-align:center; }
+.layout-guest-seat { position:absolute;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;color:var(--ink-soft);text-align:center;line-height:1.1;cursor:default;transition:box-shadow .15s;box-sizing:border-box; }
+.layout-guest-seat:hover { z-index:10;box-shadow:0 2px 10px rgba(42,31,26,.22); }
+.layout-guest-seat.novio { border:1.5px solid var(--sage);background:var(--sage-light);color:var(--sage-dark); }
+.layout-guest-seat.novia { border:1.5px solid var(--rose-mid);background:var(--rose-light);color:var(--rose-dark); }
+.layout-table-circle { position:relative;flex-shrink:0;border-radius:50%; transition:box-shadow .15s; }
+.layout-table-circle.layout-drop-active { box-shadow:0 0 0 3px var(--gold-mid), 0 0 20px rgba(196,151,58,.35); }
+
 @media print {
   .sidebar, .topbar { display: none; }
   .app { display: block; }
@@ -377,6 +396,7 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
     <div class="topbar-spacer"></div>
     <div id="guest-metrics" style="display:flex;gap:14px;font-size:13px;color:var(--ink-mute);flex-wrap:wrap"></div>
     <button class="btn-add" onclick="addGuest()">+ Agregar</button>
+    <button class="btn-add" style="background:var(--sage-light);color:var(--sage-dark);border-color:var(--sage)" onclick="abrirLayoutMesas()">🪑 Ver layout de mesas</button>
   </div>
 
   <div id="guests-by-mesa"></div>
@@ -504,6 +524,7 @@ const STATUS_CLASS = {"Sin iniciar":"s-none","En proceso":"s-progress","Confirma
 let items = {};
 let mesas = []; /* lista de mesas desde Supabase */
 let mesaSortField = {}; /* { nombreMesa: 'name'|'relacion' } */
+let mesaCollapsed = {}; /* { nombreMesa: bool } — colapso de cada sección */
 let dragSrcId = null; /* id del guest siendo arrastrado */
 CATS.forEach(c => { items[c.id] = []; });
 let catNotes = {};
@@ -872,14 +893,17 @@ function renderMesasManager() {
     container.innerHTML = `<span style="font-size:12px;color:var(--ink-mute)">Sin mesas creadas aún.</span>`;
     return;
   }
-  container.innerHTML = mesas.map(m => `
+  container.innerHTML = mesas.map(m => {
+    const count = guests.filter(g => g.mesa_grupo === m.nombre).length;
+    return `
     <div class="mesa-chip" id="chip-${m.id}">
       <input class="mesa-chip-name" value="${(m.nombre||'').replace(/"/g,'&quot;')}"
         onchange="renameMesa(${m.id}, this.value)"
         style="width:${Math.max(60, (m.nombre||'').length * 8)}px">
+      <span style="font-size:11px;color:var(--ink-mute);background:var(--surface2);border-radius:20px;padding:1px 7px;margin-left:2px">${count}</span>
       <button class="mesa-chip-del" onclick="deleteMesa(${m.id})" title="Eliminar mesa">✕</button>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 async function addMesa() {
@@ -973,7 +997,7 @@ function renderGuests() {
     const esc = CSS.escape(mesa);
 
     html += `<div class="mesa-group" id="mesa-group-${esc}">
-      <div class="mesa-header" onclick="toggleMesa('mesa-body-${esc}')">
+      <div class="mesa-header" onclick="toggleMesa('${mesa.replace(/'/g,"\\'")}')">
         <span class="mesa-badge">${mesa}</span>
         <span class="${sideClass}">${sideLabel}</span>
         <span class="mesa-count">${conf}/${sorted.length} confirmados</span>
@@ -982,9 +1006,9 @@ function renderGuests() {
           <option value="name" ${sortF==='name'?'selected':''}>↑ Nombre</option>
           <option value="relacion" ${sortF==='relacion'?'selected':''}>↑ Relación</option>
         </select>
-        <span style="color:var(--ink-mute);font-size:13px">&#8964;</span>
+        <span id="chevron-${esc}" style="color:var(--ink-mute);font-size:13px;transition:transform .2s;display:inline-block;transform:${mesaCollapsed[mesa]?'rotate(-90deg)':'rotate(0deg)'}">&#8964;</span>
       </div>
-      <div id="mesa-body-${esc}" class="guests-table-wrap">
+      <div id="mesa-body-${esc}" class="guests-table-wrap" style="display:${mesaCollapsed[mesa]?'none':''}">
         <table class="guests-table">
           <thead><tr>
             <th style="width:24px"></th>
@@ -1054,9 +1078,13 @@ function setSortMesa(mesa, field) {
   renderGuests();
 }
 
-function toggleMesa(id) {
-  const el = document.getElementById(id);
-  if(el) el.style.display = el.style.display==='none' ? '' : 'none';
+function toggleMesa(mesaKey) {
+  mesaCollapsed[mesaKey] = !mesaCollapsed[mesaKey];
+  const esc = CSS.escape(mesaKey);
+  const body = document.getElementById('mesa-body-' + esc);
+  const chevron = document.getElementById('chevron-' + esc);
+  if (body) body.style.display = mesaCollapsed[mesaKey] ? 'none' : '';
+  if (chevron) chevron.style.transform = mesaCollapsed[mesaKey] ? 'rotate(-90deg)' : 'rotate(0deg)';
 }
 
 async function addGuest() {
@@ -1363,12 +1391,213 @@ function closeSidebar() {
   document.getElementById("sidebar-overlay").classList.remove("visible");
 }
 
+/* -- Layout de mesas -- */
+/* ── Layout drag & drop state ── */
+let layoutDragGuestId = null;
+
+function abrirLayoutMesas() {
+  const modal = document.getElementById('layout-modal');
+  const body  = document.getElementById('layout-modal-body');
+  if (!modal || !body) return;
+  renderLayoutMesas();
+  modal.style.display = 'flex';
+}
+
+function renderLayoutMesas() {
+  const body = document.getElementById('layout-modal-body');
+  if (!body) return;
+
+  const SR = 17;
+  const DISC_R = 44;
+  const MIN_ORBIT = 58;
+
+  body.innerHTML = mesas.map(m => {
+    const glist = guests.filter(g => g.mesa_grupo === m.nombre);
+    const N = glist.length;
+    const conf = glist.filter(g => g.conf === 'Confirmado').length;
+
+    const orbitR = N <= 1
+      ? MIN_ORBIT
+      : Math.max(MIN_ORBIT, Math.ceil((N * (SR * 2 + 8)) / (2 * Math.PI)));
+
+    const CX = orbitR + SR + 4;
+    const SIZE = CX * 2;
+    const discInset = CX - DISC_R;
+    const angleStep = N > 0 ? (2 * Math.PI) / N : 0;
+
+    const seats = glist.map((g, i) => {
+      const angle = angleStep * i - Math.PI / 2;
+      const cx = CX + orbitR * Math.cos(angle) - SR;
+      const cy = CX + orbitR * Math.sin(angle) - SR;
+      const sideClass = g.lado === 'NOVIO' ? 'novio' : 'novia';
+      const initials = (g.name || '?').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      return `<div class="layout-guest-seat ${sideClass}"
+        style="left:${cx}px;top:${cy}px"
+        title="${(g.name||'').replace(/"/g,'&quot;')}"
+        draggable="true"
+        data-guest-id="${g.id}"
+        onmousedown="layoutDragStart(event,'${g.id}')"
+        ondragstart="layoutDragStart(event,'${g.id}')"
+        ondragend="layoutDragEnd(event)"
+      >${initials}</div>`;
+    }).join('');
+
+    return `<div class="layout-table-wrap">
+      <div class="layout-table-circle" style="width:${SIZE}px;height:${SIZE}px"
+        data-mesa="${m.nombre.replace(/"/g,'&quot;')}"
+        ondragover="layoutDragOver(event)"
+        ondragleave="layoutDragLeave(event)"
+        ondrop="layoutDrop(event,'${m.nombre.replace(/'/g,"\\'")}')">
+        <div class="layout-table-disc"
+          style="top:${discInset}px;left:${discInset}px;right:${discInset}px;bottom:${discInset}px;
+                 position:absolute;border-radius:50%;background:var(--rose-light);
+                 border:2.5px solid var(--rose-mid);display:flex;align-items:center;
+                 justify-content:center;pointer-events:none;">
+          <div style="text-align:center">
+            <div class="layout-table-name">${m.nombre}</div>
+            <div class="layout-table-total">${N} inv.</div>
+          </div>
+        </div>
+        ${seats}
+      </div>
+      <div style="font-size:11px;color:var(--ink-mute);text-align:center;margin-top:4px">✓ ${conf}/${N} confirmados</div>
+    </div>`;
+  }).join('') || `<div style="color:var(--ink-mute);font-size:13px;padding:32px">Sin mesas creadas.</div>`;
+
+  /* Touch drag support */
+  initLayoutTouchDrag();
+}
+
+function layoutDragStart(e, guestId) {
+  layoutDragGuestId = guestId;
+  if (e.dataTransfer) {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', guestId);
+  }
+  /* marca visual */
+  setTimeout(() => {
+    const el = document.querySelector(`[data-guest-id="${guestId}"]`);
+    if (el) el.style.opacity = '0.4';
+  }, 0);
+}
+
+function layoutDragEnd(e) {
+  /* restaura opacidad de todos los asientos */
+  document.querySelectorAll('.layout-guest-seat').forEach(el => el.style.opacity = '');
+  document.querySelectorAll('.layout-table-circle').forEach(el => el.classList.remove('layout-drop-active'));
+}
+
+function layoutDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer && (e.dataTransfer.dropEffect = 'move');
+  e.currentTarget.classList.add('layout-drop-active');
+}
+
+function layoutDragLeave(e) {
+  e.currentTarget.classList.remove('layout-drop-active');
+}
+
+async function layoutDrop(e, mesaNombre) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('layout-drop-active');
+  const guestId = layoutDragGuestId || (e.dataTransfer && e.dataTransfer.getData('text/plain'));
+  if (!guestId) return;
+
+  const g = guests.find(x => String(x.id) === String(guestId));
+  if (!g || g.mesa_grupo === mesaNombre) return;
+
+  const oldMesa = g.mesa_grupo;
+  g.mesa_grupo = mesaNombre;
+
+  /* re-render inmediato */
+  renderLayoutMesas();
+  renderGuests(); /* actualiza el listado principal también */
+
+  /* persiste en Supabase */
+  setSyncing(true);
+  await sbUpdate('guests', g.id, { mesa_grupo: mesaNombre });
+  setSyncing(false);
+
+  layoutDragGuestId = null;
+}
+
+/* ── Touch drag (móvil) ── */
+function initLayoutTouchDrag() {
+  let touchGuest = null;
+  let ghost = null;
+
+  document.querySelectorAll('.layout-guest-seat').forEach(seat => {
+    seat.addEventListener('touchstart', e => {
+      touchGuest = seat.dataset.guestId;
+      /* ghost visual */
+      ghost = seat.cloneNode(true);
+      ghost.style.cssText = `position:fixed;opacity:.75;pointer-events:none;z-index:9999;
+        width:34px;height:34px;border-radius:50%;display:flex;align-items:center;
+        justify-content:center;font-size:9px;font-weight:500;`;
+      ghost.style.background = seat.classList.contains('novio') ? 'var(--sage-light)' : 'var(--rose-light)';
+      ghost.style.border = seat.classList.contains('novio') ? '1.5px solid var(--sage)' : '1.5px solid var(--rose-mid)';
+      document.body.appendChild(ghost);
+      seat.style.opacity = '0.4';
+    }, {passive:true});
+
+    seat.addEventListener('touchmove', e => {
+      if (!ghost) return;
+      const t = e.touches[0];
+      ghost.style.left = (t.clientX - 17) + 'px';
+      ghost.style.top  = (t.clientY - 17) + 'px';
+      /* highlight mesa bajo el dedo */
+      ghost.style.display = 'none';
+      const el = document.elementFromPoint(t.clientX, t.clientY);
+      ghost.style.display = '';
+      document.querySelectorAll('.layout-table-circle').forEach(c => c.classList.remove('layout-drop-active'));
+      const circle = el && el.closest('.layout-table-circle');
+      if (circle) circle.classList.add('layout-drop-active');
+    }, {passive:true});
+
+    seat.addEventListener('touchend', async e => {
+      if (ghost) { ghost.remove(); ghost = null; }
+      document.querySelectorAll('.layout-guest-seat').forEach(el => el.style.opacity = '');
+      document.querySelectorAll('.layout-table-circle').forEach(c => c.classList.remove('layout-drop-active'));
+
+      if (!touchGuest) return;
+      const t = e.changedTouches[0];
+      const el = document.elementFromPoint(t.clientX, t.clientY);
+      const circle = el && el.closest('.layout-table-circle');
+      if (!circle) { touchGuest = null; return; }
+
+      const mesaNombre = circle.dataset.mesa;
+      const g = guests.find(x => String(x.id) === String(touchGuest));
+      touchGuest = null;
+      if (!g || !mesaNombre || g.mesa_grupo === mesaNombre) return;
+
+      g.mesa_grupo = mesaNombre;
+      renderLayoutMesas();
+      renderGuests();
+      setSyncing(true);
+      await sbUpdate('guests', g.id, { mesa_grupo: mesaNombre });
+      setSyncing(false);
+    }, {passive:true});
+  });
+}
+
+function cerrarLayoutMesas() {
+  document.getElementById('layout-modal').style.display = 'none';
+}
+
 /* -- Boot -- */
 loadAll();
 </script>
-<div style="position:fixed;bottom:6px;right:10px;font-size:10px;color:#9C8878;opacity:.5;pointer-events:none;z-index:999;font-family:'DM Sans',sans-serif;">v 2026-05-18 00:10 CST</div>
-<script>
-</script>
+<!-- LAYOUT DE MESAS MODAL -->
+<div id="layout-modal" class="layout-modal-bg" style="display:none" onclick="cerrarLayoutMesas()">
+  <div class="layout-modal" onclick="event.stopPropagation()">
+    <div class="layout-modal-header">
+      <span class="layout-modal-title">🪑 Layout de mesas</span>
+      <button class="layout-modal-close" onclick="cerrarLayoutMesas()">✕</button>
+    </div>
+    <div class="layout-modal-body" id="layout-modal-body"></div>
+  </div>
+</div>
+
 <div style="position:fixed;bottom:6px;right:10px;font-size:10px;color:#9C8878;opacity:.5;pointer-events:none;z-index:999;font-family:'DM Sans',sans-serif;">v 2026-05-18 00:10 CST</div>
 </body>
 </html>
