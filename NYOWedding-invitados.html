@@ -528,7 +528,7 @@ async function loadAll() {
       sbGet("guests","order=created_at.asc"),
       sbGet("timeline","order=orden.asc,created_at.asc"),
       sbGet("plat_notes","order=created_at.desc"),
-      sbGet("mesas","order=orden.asc,created_at.asc"),
+      sbGet("mesas","order=orden.asc"),
     ]);
 
     /* tracker items — if empty, seed with defaults */
