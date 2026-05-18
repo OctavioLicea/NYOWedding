@@ -430,7 +430,7 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
 </style>
 
 <script>
-/* ── Supabase config ── */
+/* -- Supabase config -- */
 const SB_URL = "https://qoaxifnrlxxwwdzqxmot.supabase.co";
 const SB_KEY = "sb_publishable_P72GEsWtoUAfqiAev-oFig_SOs1cdwv";
 const sbHeaders = {"apikey": SB_KEY, "Authorization": "Bearer "+SB_KEY, "Content-Type": "application/json", "Prefer": "return=representation"};
@@ -453,7 +453,7 @@ async function sbDelete(table, id) {
   await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {method:"DELETE", headers: sbHeaders});
 }
 
-/* ── Constants ── */
+/* -- Constants -- */
 const CATS = [
   {id:"venue",     name:"Venue y ceremonia",        icon:"&#127968;"},
   {id:"musica",    name:"Música",                   icon:"&#127925;"},
@@ -500,7 +500,7 @@ const TIMELINE_DEFAULT = [
 
 const STATUS_CLASS = {"Sin iniciar":"s-none","En proceso":"s-progress","Confirmado":"s-ok","Pagado":"s-paid","Cancelado":"s-cancel"};
 
-/* ── State ── */
+/* -- State -- */
 let items = {};
 let mesas = []; /* lista de mesas desde Supabase */
 let mesaSortField = {}; /* { nombreMesa: 'name'|'relacion' } */
@@ -512,13 +512,13 @@ let guests = [];
 let timeline = [];
 let platNotes = [];
 
-/* ── Sync indicator ── */
+/* -- Sync indicator -- */
 function setSyncing(on) {
   const el = document.getElementById("sync-indicator");
   if(el) el.style.opacity = on ? "1" : "0";
 }
 
-/* ── Load all data from Supabase ── */
+/* -- Load all data from Supabase -- */
 async function loadAll() {
   showLoading(true);
   try {
@@ -606,7 +606,7 @@ function showLoading(on) {
   if(el) el.style.display = on ? "flex" : "none";
 }
 
-/* ── Stats ── */
+/* -- Stats -- */
 function getStats() {
   let total=0, sinI=0, progress=0, conf=0, cancel=0;
   CATS.forEach(c => items[c.id].forEach(it => {
@@ -629,7 +629,7 @@ function getCatStats(catId) {
   return {total, conf, progress, pct: total ? Math.round(conf/total*100) : 0};
 }
 
-/* ── Dashboard ── */
+/* -- Dashboard -- */
 function renderDashboard() {
   const s = getStats();
   document.getElementById("dash-metrics").innerHTML = `
@@ -664,7 +664,7 @@ function renderCatNav() {
     </div>`).join("");
 }
 
-/* ── Tracker ── */
+/* -- Tracker -- */
 function renderTracker() {
   const q = document.getElementById("search-input").value.toLowerCase();
   const sf = document.getElementById("status-filter").value;
@@ -781,7 +781,7 @@ function updateStatusStyle(sel) {
 }
 function filterTracker() { renderTracker(); }
 
-/* ── Guests ── */
+/* -- Guests -- */
 const GUESTS_SEED = [
   {name:"NOVIA",contacto:"844 160 5030",conf:"Confirmado",tipo:"A",lado:"NOVIA",relacion:"",mesa_grupo:""},
   {name:"NOVIO",contacto:"812 466 5528",conf:"Confirmado",tipo:"A",lado:"NOVIO",relacion:"",mesa_grupo:""},
@@ -862,9 +862,9 @@ async function seedGuests() {
   if(result) guests = result;
 }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    MESAS — gestión
-══════════════════════════════════════════ */
+========================================== */
 function renderMesasManager() {
   const container = document.getElementById('mesas-chips');
   if (!container) return;
@@ -925,9 +925,9 @@ async function deleteMesa(id) {
   setSyncing(false);
 }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    GUESTS — render v3
-══════════════════════════════════════════ */
+========================================== */
 function renderGuests() {
   const q  = document.getElementById('guest-search').value.toLowerCase();
   const fl = document.getElementById('guest-filter-lado').value;
@@ -1092,7 +1092,7 @@ async function deleteGuest(i) {
 
 function filterGuests(){ renderGuests(); }
 
-/* ── Menú contextual — Mover a mesa ── */
+/* -- Menú contextual — Mover a mesa -- */
 let ctxGuestId = null;
 
 function abrirMenuMesa(e, guestId) {
@@ -1151,7 +1151,7 @@ async function moverGuestAMesa(guestId, nuevaMesa) {
   setSyncing(false);
 }
 
-/* ── Timeline ── */
+/* -- Timeline -- */
 function renderTimeline() {
   document.getElementById("timeline-wrap").innerHTML = timeline.map((ev,i) => `
     <div class="tl-row">
@@ -1206,7 +1206,7 @@ async function deleteTimeline(i) {
   setSyncing(false);
 }
 
-/* ── Platiquemos ── */
+/* -- Platiquemos -- */
 let mediaRecorder=null, audioChunks=[], recordingTimer=null, recordingSeconds=0;
 
 function toggleRecording() {
@@ -1320,7 +1320,7 @@ async function deletePlatNote(i) {
   setSyncing(false);
 }
 
-/* ── Navigation ── */
+/* -- Navigation -- */
 function showPage(id,el) {
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
@@ -1363,8 +1363,12 @@ function closeSidebar() {
   document.getElementById("sidebar-overlay").classList.remove("visible");
 }
 
-/* ── Boot ── */
+/* -- Boot -- */
 loadAll();
 </script>
+<div style="position:fixed;bottom:6px;right:10px;font-size:10px;color:#9C8878;opacity:.5;pointer-events:none;z-index:999;font-family:'DM Sans',sans-serif;">v 2026-05-17 23:55 CST</div>
+<script>
+</script>
+<div style="position:fixed;bottom:6px;right:10px;font-size:10px;color:#9C8878;opacity:.5;pointer-events:none;z-index:999;font-family:'DM Sans',sans-serif;">v 2026-05-17 23:55 CST</div>
 </body>
 </html>
