@@ -227,13 +227,16 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
 .lado-novia { background:var(--rose-light);color:var(--rose-dark); }
 
 /* Drag & drop */
-.drag-handle { cursor:grab;color:var(--ink-mute);font-size:14px;padding:0 4px;user-select:none; }
-.drag-handle:active { cursor:grabbing; }
-tr.dragging { opacity:.4; }
-tr.drag-over td { background:var(--rose-light) !important;border-top:2px solid var(--rose); }
-.drop-zone-mesa { border:2px dashed var(--rose-mid);border-radius:var(--radius);padding:14px;text-align:center;font-size:12px;color:var(--rose-mid);display:none;margin-top:4px; }
-.drop-zone-mesa.active { display:block; }
-.drop-zone-mesa.empty-mesa { display:block; background:var(--rose-light); padding:20px; font-size:13px; }
+/* Menú contextual de mesa */
+.mesa-btn { cursor:pointer;color:var(--ink-mute);font-size:16px;padding:0 6px;user-select:none;background:none;border:none;line-height:1; }
+.mesa-btn:hover { color:var(--rose); }
+.ctx-menu { position:fixed;z-index:200;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-lg);box-shadow:0 4px 20px rgba(42,31,26,.18);padding:6px 0;min-width:190px;font-family:var(--font-body); }
+.ctx-menu-title { font-size:11px;color:var(--ink-mute);padding:6px 14px 4px;letter-spacing:.06em;text-transform:uppercase; }
+.ctx-menu-item { padding:8px 14px;font-size:13px;color:var(--ink);cursor:pointer;transition:background .1s;white-space:nowrap; }
+.ctx-menu-item:hover { background:var(--rose-light);color:var(--rose-dark); }
+.ctx-menu-item.sin-mesa { color:var(--ink-mute); }
+.ctx-menu-sep { height:0.5px;background:var(--border);margin:4px 0; }
+.drop-zone-mesa { border:2px dashed var(--rose-mid);border-radius:var(--radius);padding:20px;text-align:center;font-size:13px;color:var(--rose-mid);background:var(--rose-light); }
 
 /* ── Platiquemos ── */
 .plat-note { background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:12px;display:flex;align-items:flex-start;gap:14px; }
@@ -545,7 +548,7 @@ async function loadAll() {
     if(dbGuests.length === 0) {
       await seedGuests();
     } else {
-      guests = dbGuests;
+      guests = dbGuests.filter(g => !g.borrado);
     }
 
     /* mesas */
@@ -969,10 +972,7 @@ function renderGuests() {
     const conf = sorted.filter(g=>g.conf==='Confirmado').length;
     const esc = CSS.escape(mesa);
 
-    html += `<div class="mesa-group" id="mesa-group-${esc}"
-        ondragover="onDragOverMesa(event,'${mesa.replace(/'/g,"\'")}')"
-        ondrop="onDropMesa(event,'${mesa.replace(/'/g,"\'")}')"
-        ondragleave="onDragLeaveMesa(event)">
+    html += `<div class="mesa-group" id="mesa-group-${esc}">
       <div class="mesa-header" onclick="toggleMesa('mesa-body-${esc}')">
         <span class="mesa-badge">${mesa}</span>
         <span class="${sideClass}">${sideLabel}</span>
@@ -995,12 +995,8 @@ function renderGuests() {
             ${sorted.map(g => {
               const ri = guests.indexOf(g);
               const cc = confMap[g.conf]||'c-pend';
-              return `<tr draggable="true"
-                  ondragstart="onDragStart(event,${g.id})"
-                  ondragend="onDragEnd(event)"
-                  ondragover="onDragOverRow(event)"
-                  ondrop="onDropRow(event,'${mesa.replace(/'/g,"\'")}',${g.id})">
-                <td><span class="drag-handle" title="Arrastrar">⠿</span></td>
+              return `<tr>
+                <td><button class="mesa-btn" onclick="abrirMenuMesa(event,${g.id})" title="Mover a mesa">⇄</button></td>
                 <td><input class="cell-input" style="min-width:160px;font-weight:500" value="${(g.name||'').replace(/"/g,'&quot;')}" onchange="updateGuest(${ri},'name',this.value)" placeholder="Nombre…"></td>
                 <td><input class="cell-input" style="min-width:110px" value="${g.contacto||''}" onchange="updateGuest(${ri},'contacto',this.value)" placeholder="Tel…"></td>
                 <td><input class="cell-input" style="min-width:80px" value="${g.relacion||''}" onchange="updateGuest(${ri},'relacion',this.value)" placeholder="Relación…"></td>
@@ -1028,9 +1024,7 @@ function renderGuests() {
             }).join('')}
           </tbody>
         </table>
-        <div class="drop-zone-mesa ${sorted.length === 0 ? 'empty-mesa' : ''}" id="dropzone-${esc}">
-          ${sorted.length === 0 ? '⠿ Arrastra invitados aquí para asignarlos a ' + mesa : 'Soltar aquí → ' + mesa}
-        </div>
+        ${sorted.length === 0 ? `<div class="drop-zone-mesa">⇄ Usa el botón ⇄ de cualquier invitado para asignarlo a ${mesa}</div>` : ''}
       </div>
     </div>`;
   });
@@ -1086,57 +1080,68 @@ function updateGuest(i, field, val) {
 }
 
 async function deleteGuest(i) {
-  const id = guests[i].id;
+  const g = guests[i];
+  if (!confirm(`¿Ocultar a "${g.name}"? Puedes recuperarlo después.`)) return;
   setSyncing(true);
-  guests.splice(i,1); renderGuests();
-  await sbDelete('guests', id);
+  g.borrado = true;
+  guests.splice(i, 1);
+  renderGuests();
+  await sbUpdate('guests', g.id, {borrado: true});
   setSyncing(false);
 }
 
 function filterGuests(){ renderGuests(); }
 
-/* ── Drag & Drop ── */
-function onDragStart(e, guestId) {
-  dragSrcId = guestId;
-  e.dataTransfer.effectAllowed = 'move';
-  setTimeout(() => {
-    const tr = e.target.closest('tr');
-    if(tr) tr.classList.add('dragging');
-  }, 0);
-  document.querySelectorAll('.drop-zone-mesa:not(.empty-mesa)').forEach(z => z.style.display = 'block');
-}
+/* ── Menú contextual — Mover a mesa ── */
+let ctxGuestId = null;
 
-function onDragEnd(e) {
-  dragSrcId = null;
-  document.querySelectorAll('tr.dragging').forEach(r => r.classList.remove('dragging'));
-  document.querySelectorAll('tr.drag-over').forEach(r => r.classList.remove('drag-over'));
-  document.querySelectorAll('.drop-zone-mesa:not(.empty-mesa)').forEach(z => z.style.display = 'none');
-}
-
-function onDragOverRow(e) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  document.querySelectorAll('tr.drag-over').forEach(r => r.classList.remove('drag-over'));
-  e.currentTarget.classList.add('drag-over');
-}
-
-function onDragOverMesa(e, mesa) { e.preventDefault(); }
-function onDragLeaveMesa(e) {}
-
-async function onDropRow(e, mesa, targetGuestId) {
-  e.preventDefault();
+function abrirMenuMesa(e, guestId) {
   e.stopPropagation();
-  if (dragSrcId === null || dragSrcId === targetGuestId) return;
-  await moverGuestAMesa(dragSrcId, mesa);
+  cerrarMenuMesa();
+  ctxGuestId = guestId;
+  const g = guests.find(x => x.id === guestId);
+  const mesaActual = g ? g.mesa_grupo || 'Sin mesa' : '';
+
+  const menu = document.createElement('div');
+  menu.className = 'ctx-menu';
+  menu.id = 'ctx-menu';
+
+  let items = `<div class="ctx-menu-title">Mover a mesa</div>`;
+
+  /* mesas registradas */
+  mesas.forEach(m => {
+    const activo = m.nombre === mesaActual;
+    items += `<div class="ctx-menu-item${activo?' ctx-active':''}" onclick="moverGuestAMesa(${guestId},'${m.nombre.replace(/'/g,"\'")}')">
+      ${activo ? '✓ ' : ''}${m.nombre}
+    </div>`;
+  });
+
+  /* Sin mesa */
+  if (mesas.length > 0) items += `<div class="ctx-menu-sep"></div>`;
+  const sinMesaActivo = mesaActual === 'Sin mesa';
+  items += `<div class="ctx-menu-item sin-mesa${sinMesaActivo?' ctx-active':''}" onclick="moverGuestAMesa(${guestId},'Sin mesa')">
+    ${sinMesaActivo ? '✓ ' : ''}Sin mesa
+  </div>`;
+
+  menu.innerHTML = items;
+
+  /* posición relativa al botón */
+  const rect = e.currentTarget.getBoundingClientRect();
+  menu.style.top = (rect.bottom + 4) + 'px';
+  menu.style.left = Math.min(rect.left, window.innerWidth - 210) + 'px';
+
+  document.body.appendChild(menu);
+  setTimeout(() => document.addEventListener('click', cerrarMenuMesa, {once:true}), 0);
 }
 
-async function onDropMesa(e, mesa) {
-  e.preventDefault();
-  if (dragSrcId === null) return;
-  await moverGuestAMesa(dragSrcId, mesa);
+function cerrarMenuMesa() {
+  const m = document.getElementById('ctx-menu');
+  if (m) m.remove();
+  ctxGuestId = null;
 }
 
 async function moverGuestAMesa(guestId, nuevaMesa) {
+  cerrarMenuMesa();
   const g = guests.find(x => x.id === guestId);
   if (!g || g.mesa_grupo === nuevaMesa) return;
   g.mesa_grupo = nuevaMesa;
