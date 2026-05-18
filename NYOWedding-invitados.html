@@ -996,7 +996,7 @@ function renderGuests() {
               const ri = guests.indexOf(g);
               const cc = confMap[g.conf]||'c-pend';
               return `<tr>
-                <td><button class="mesa-btn" onclick="abrirMenuMesa(event,${g.id})" title="Mover a mesa">⇄</button></td>
+                <td><button class="mesa-btn" onclick="abrirMenuMesa(event,'${g.id}')" title="Mover a mesa">⇄</button></td>
                 <td><input class="cell-input" style="min-width:160px;font-weight:500" value="${(g.name||'').replace(/"/g,'&quot;')}" onchange="updateGuest(${ri},'name',this.value)" placeholder="Nombre…"></td>
                 <td><input class="cell-input" style="min-width:110px" value="${g.contacto||''}" onchange="updateGuest(${ri},'contacto',this.value)" placeholder="Tel…"></td>
                 <td><input class="cell-input" style="min-width:80px" value="${g.relacion||''}" onchange="updateGuest(${ri},'relacion',this.value)" placeholder="Relación…"></td>
@@ -1111,7 +1111,7 @@ function abrirMenuMesa(e, guestId) {
   /* mesas registradas */
   mesas.forEach(m => {
     const activo = m.nombre === mesaActual;
-    items += `<div class="ctx-menu-item${activo?' ctx-active':''}" onclick="moverGuestAMesa(${guestId},'${m.nombre.replace(/'/g,"\'")}')">
+    items += `<div class="ctx-menu-item${activo?' ctx-active':''}" onclick="moverGuestAMesa('${guestId}','${m.nombre.replace(/'/g,"\'")}')">
       ${activo ? '✓ ' : ''}${m.nombre}
     </div>`;
   });
@@ -1119,7 +1119,7 @@ function abrirMenuMesa(e, guestId) {
   /* Sin mesa */
   if (mesas.length > 0) items += `<div class="ctx-menu-sep"></div>`;
   const sinMesaActivo = mesaActual === 'Sin mesa';
-  items += `<div class="ctx-menu-item sin-mesa${sinMesaActivo?' ctx-active':''}" onclick="moverGuestAMesa(${guestId},'Sin mesa')">
+  items += `<div class="ctx-menu-item sin-mesa${sinMesaActivo?' ctx-active':''}" onclick="moverGuestAMesa('${guestId}','Sin mesa')">
     ${sinMesaActivo ? '✓ ' : ''}Sin mesa
   </div>`;
 
@@ -1366,9 +1366,9 @@ function closeSidebar() {
 /* -- Boot -- */
 loadAll();
 </script>
-<div style="position:fixed;bottom:6px;right:10px;font-size:10px;color:#9C8878;opacity:.5;pointer-events:none;z-index:999;font-family:'DM Sans',sans-serif;">v 2026-05-17 23:55 CST</div>
+<div style="position:fixed;bottom:6px;right:10px;font-size:10px;color:#9C8878;opacity:.5;pointer-events:none;z-index:999;font-family:'DM Sans',sans-serif;">v 2026-05-18 00:10 CST</div>
 <script>
 </script>
-<div style="position:fixed;bottom:6px;right:10px;font-size:10px;color:#9C8878;opacity:.5;pointer-events:none;z-index:999;font-family:'DM Sans',sans-serif;">v 2026-05-17 23:55 CST</div>
+<div style="position:fixed;bottom:6px;right:10px;font-size:10px;color:#9C8878;opacity:.5;pointer-events:none;z-index:999;font-family:'DM Sans',sans-serif;">v 2026-05-18 00:10 CST</div>
 </body>
 </html>
