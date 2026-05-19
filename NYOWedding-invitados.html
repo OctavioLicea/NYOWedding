@@ -150,23 +150,82 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
 .c-no { background: var(--s-cancel-bg); color: var(--s-cancel); }
 .c-wait { background: var(--s-none-bg); color: var(--s-none); }
 
-/* ── Timeline ── */
-.timeline { display: flex; flex-direction: column; gap: 0; }
-.tl-row { display: grid; grid-template-columns: 90px 1fr; gap: 0; align-items: stretch; }
-.tl-time-col { display: flex; flex-direction: column; align-items: center; }
-.tl-time { font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--rose); padding-top: 18px; white-space: nowrap; }
-.tl-line-wrap { display: flex; flex-direction: column; align-items: center; flex: 1; }
-.tl-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--rose); border: 2px solid var(--surface); outline: 2px solid var(--rose); margin-top: 22px; flex-shrink: 0; }.tl-line { width: 1px; background: var(--border-strong); flex: 1; margin-top: 4px; }
-.tl-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 18px; margin: 10px 0 10px 14px; }
-.tl-card-title-input { width: 100%; font-family: var(--font-display); font-size: 15px; font-weight: 500; color: var(--ink); background: transparent; border: none; outline: none; }
-.tl-card-title-input:focus { background: var(--surface2); border-radius: 4px; padding-left: 4px; }
-.tl-meta { display: flex; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
-.tl-meta-input { font-family: var(--font-body); font-size: 12px; color: var(--ink-mute); background: transparent; border: none; outline: none; min-width: 60px; }
-.tl-meta-input:focus { background: var(--surface2); border-radius: 4px; padding: 1px 6px; color: var(--ink); }
-.tl-meta-input::placeholder { color: var(--ink-mute); }
-.tl-time-input { font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--rose); background: transparent; border: none; outline: none; width: 80px; text-align: center; padding-top: 18px; }
-.tl-add-btn { display: flex; align-items: center; gap: 6px; background: none; border: 0.5px dashed var(--border-strong); border-radius: var(--radius); padding: 10px 18px; color: var(--ink-mute); font-family: var(--font-body); font-size: 13px; cursor: pointer; margin: 8px 0 8px 104px; transition: all .15s; }
-.tl-add-btn:hover { background: var(--rose-light); color: var(--rose-dark); border-color: var(--rose); }
+/* ── Cronograma v3 ── */
+.tl-stats-bar { display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap; }
+.tl-stat-card { flex:1;min-width:110px;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 18px; }
+.tl-stat-num { font-family:var(--font-heading);font-size:26px;font-weight:600;color:var(--ink);line-height:1; }
+.tl-stat-lbl { font-size:11px;color:var(--ink-mute);margin-top:4px;text-transform:uppercase;letter-spacing:.05em; }
+
+.tl-section-block { margin-bottom:28px; }
+.tl-section-header { display:flex;align-items:center;gap:8px;padding:6px 0 6px 12px;margin-bottom:8px; }
+.tl-section-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+.tl-section-title { font-size:10px;font-weight:600;letter-spacing:.1em; }
+.tl-section-count { font-size:10px;margin-left:auto;opacity:.7; }
+.tl-section-rows { display:flex;flex-direction:column;gap:10px; }
+
+/* etapa row */
+.tl-etapa-row { display:grid;grid-template-columns:80px 1fr;gap:0 10px;align-items:start;border-radius:var(--radius);padding:4px;transition:background .12s; }
+.tl-etapa-row:hover { background:var(--surface2); }
+.tl-etapa-row.tl-row-dragging { opacity:.35; }
+.tl-etapa-row.tl-row-dragover { outline:2px dashed var(--rose-mid);outline-offset:2px;background:var(--rose-light); }
+.tl-etapa-anchor .tl-card2 { border-left:3px solid var(--rose); }
+
+.tl-etapa-left { display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:10px; }
+.tl-drag-handle { font-size:16px;color:var(--ink-mute);cursor:grab;user-select:none;opacity:.4;transition:opacity .12s;line-height:1; }
+.tl-drag-handle:active { cursor:grabbing; }
+.tl-etapa-row:hover .tl-drag-handle { opacity:1; }
+.tl-etapa-times { display:flex;flex-direction:column;align-items:center;gap:2px;width:100%; }
+.tl-etapa-arrow { font-size:11px;color:var(--ink-mute); }
+.tl-time2-input { font-family:var(--font-heading);font-size:12px;font-weight:500;color:var(--rose);background:var(--surface2);border:0.5px solid var(--border);border-radius:6px;outline:none;width:60px;text-align:center;padding:3px 4px;transition:border-color .12s; }
+.tl-time2-input:focus { border-color:var(--rose);background:var(--surface); }
+.tl-time2-fin { color:var(--ink-mute); }
+
+/* card */
+.tl-card2 { background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px 14px;transition:border-color .15s; }
+.tl-card2:hover { border-color:var(--border-strong); }
+.tl-card2-anchor { border-left:3px solid var(--rose); }
+.tl-card2-header { display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
+.tl-card2-title { flex:1;min-width:100px;font-family:var(--font-heading);font-size:15px;font-weight:500;color:var(--ink);background:transparent;border:none;outline:none; }
+.tl-card2-title:focus { background:var(--surface2);border-radius:4px;padding-left:4px; }
+.tl-section-select { font-size:10px;color:var(--ink-mute);background:var(--surface2);border:0.5px solid var(--border);border-radius:20px;padding:2px 8px;outline:none;cursor:pointer;font-family:var(--font-body); }
+.tl-dur-badge { font-size:11px;color:var(--ink-mute);background:var(--surface2);border:0.5px solid var(--border);border-radius:6px;padding:2px 8px;white-space:nowrap; }
+.tl-anchor-badge { font-size:9px;color:var(--rose-dark);background:var(--rose-light);border:0.5px solid var(--rose-mid);border-radius:20px;padding:2px 7px;white-space:nowrap; }
+
+.tl-card2-meta { display:flex;align-items:center;gap:6px;margin-top:7px; }
+.tl-meta-label { font-size:12px;flex-shrink:0; }
+.tl-meta-input2 { flex:1;font-size:12px;color:var(--ink-mute);background:transparent;border:none;outline:none; }
+.tl-meta-input2:focus { background:var(--surface2);border-radius:4px;padding:1px 5px;color:var(--ink); }
+.tl-meta-input2::placeholder { color:var(--border-strong); }
+
+.tl-music-row { display:flex;align-items:center;gap:6px;margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border); }
+.tl-music-icon { font-size:13px;flex-shrink:0; }
+.tl-music-input { flex:1;font-size:12px;color:var(--ink-soft);background:transparent;border:none;outline:none; }
+.tl-music-input:focus { background:var(--gold-light);border-radius:4px;padding:2px 6px;color:var(--ink); }
+.tl-music-input::placeholder { color:var(--ink-mute);font-style:italic; }
+
+/* momentos */
+.tl-momentos-wrap { margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border); }
+.tl-momentos-label { font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:8px; }
+.tl-momento-row { display:grid;grid-template-columns:40px 10px 1fr;gap:0 8px;align-items:start;margin-bottom:6px; }
+.tl-momento-time { font-size:11px;color:var(--rose);font-family:var(--font-heading);font-weight:500;padding-top:8px;text-align:right; }
+.tl-momento-dot { width:8px;height:8px;border-radius:50%;background:var(--border-strong);border:1.5px solid var(--surface);margin-top:10px;flex-shrink:0; }
+.tl-momento-card { background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius);padding:7px 10px; }
+.tl-momento-header { display:flex;align-items:center;gap:6px;flex-wrap:wrap; }
+.tl-momento-name { flex:1;min-width:80px;font-size:13px;color:var(--ink);background:transparent;border:none;outline:none;font-family:var(--font-body); }
+.tl-momento-name:focus { background:var(--surface);border-radius:4px;padding-left:4px; }
+.tl-momento-dur { font-size:11px;color:var(--ink-mute);background:var(--surface);border:0.5px solid var(--border);border-radius:6px;padding:1px 6px;width:52px;text-align:center;outline:none; }
+.tl-momento-time-input { font-size:11px;color:var(--rose);background:var(--surface);border:0.5px solid var(--border);border-radius:6px;padding:1px 6px;width:52px;text-align:center;outline:none;font-family:var(--font-heading); }
+.tl-momento-music { font-size:11px;color:var(--ink-mute);margin-top:4px;display:flex;align-items:center;gap:4px; }
+.tl-music-input-sm { font-size:11px;flex:1;background:transparent;border:none;outline:none;color:var(--ink-soft); }
+.tl-music-input-sm:focus { background:var(--gold-light);border-radius:4px;padding:1px 4px; }
+.tl-momento-notas { font-size:11px;color:var(--ink-mute);margin-top:3px;padding-left:2px; }
+.btn-del-sm { font-size:11px;padding:1px 5px; }
+
+.tl-add-momento-btn { display:inline-flex;align-items:center;gap:4px;background:none;border:0.5px dashed var(--border-strong);border-radius:20px;padding:3px 10px;color:var(--ink-mute);font-family:var(--font-body);font-size:11px;cursor:pointer;margin-top:8px;transition:all .12s; }
+.tl-add-momento-btn:hover { background:var(--sage-light);color:var(--sage-dark);border-color:var(--sage); }
+
+.tl-add-btn { display:flex;align-items:center;gap:6px;background:none;border:0.5px dashed var(--border-strong);border-radius:var(--radius);padding:10px 18px;color:var(--ink-mute);font-family:var(--font-body);font-size:13px;cursor:pointer;margin:4px 0 8px 0;transition:all .15s;width:100%; }
+.tl-add-btn:hover { background:var(--rose-light);color:var(--rose-dark);border-color:var(--rose); }
 
 .add-item-btn { display:flex; align-items:center; gap:6px; background:none; border:0.5px dashed var(--border-strong); border-radius:var(--radius); padding:7px 14px; color:var(--ink-mute); font-family:var(--font-body); font-size:12px; cursor:pointer; margin:6px 0 4px; width:100%; transition:all .15s; }
 .add-item-btn:hover { background:var(--rose-light); color:var(--rose-dark); border-color:var(--rose); border-style:solid; }
@@ -266,7 +325,31 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
 /* ── Ornament ── */
 .ornament { color: var(--rose); font-size: 11px; margin: 0 6px; opacity: .6; }
 
-/* ── Layout de mesas modal ── */
+/* ── Layout timeline modal ── */
+.tl-layout-modal-bg { position:fixed;inset:0;background:rgba(42,31,26,.55);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px; }
+.tl-layout-modal { background:var(--surface);border-radius:var(--radius-lg);box-shadow:0 8px 40px rgba(42,31,26,.22);width:100%;max-width:960px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden; }
+.tl-layout-modal-hdr { display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:0.5px solid var(--border);flex-shrink:0; }
+.tl-layout-modal-title { font-family:var(--font-heading);font-size:18px;font-weight:500;color:var(--rose-dark);flex:1; }
+.tl-layout-modal-close { background:none;border:none;font-size:20px;color:var(--ink-mute);cursor:pointer;padding:4px 8px;border-radius:6px; }
+.tl-layout-modal-close:hover { background:var(--rose-light);color:var(--rose-dark); }
+.tl-layout-selector-wrap { padding:12px 20px;border-bottom:0.5px solid var(--border);flex-shrink:0; }
+.tl-layout-selector-hint { font-size:10px;color:var(--ink-mute);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px; }
+.tl-layout-selector { display:flex;flex-wrap:wrap;gap:5px; }
+.tl-sel-btn { font-size:10px;font-family:var(--font-body);padding:3px 9px;border-radius:20px;border:0.5px solid var(--gold-mid);background:transparent;color:var(--rose-dark);cursor:pointer;user-select:none;transition:all .12s; }
+.tl-sel-btn.active { background:var(--rose-dark);color:var(--kraft);border-color:var(--rose-dark); }
+.tl-layout-canvas-wrap { overflow:auto;padding:16px 20px;flex:1; }
+.tl-layout-print-bar { padding:12px 20px;border-top:0.5px solid var(--border);display:flex;gap:10px;justify-content:flex-end;flex-shrink:0; }
+.tl-print-btn { display:inline-flex;align-items:center;gap:6px;padding:7px 18px;border-radius:var(--radius);border:0.5px solid var(--sage);background:var(--sage-light);color:var(--sage-dark);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all .12s; }
+.tl-print-btn:hover { background:var(--sage);color:white; }
+@media print {
+  @page { size: A4 landscape; margin: 8mm; }
+  body > * { display:none !important; }
+  .tl-layout-modal-bg { display:flex !important;position:fixed;inset:0;background:none;padding:0;z-index:9999; }
+  .tl-layout-modal { box-shadow:none;max-height:none;height:100%;border-radius:0; }
+  .tl-layout-modal-hdr,.tl-layout-selector-wrap,.tl-layout-print-bar { display:none !important; }
+  .tl-layout-canvas-wrap { padding:0;overflow:visible;flex:1;display:flex;align-items:center; }
+  #tl-layout-canvas { width:100% !important;height:auto !important; }
+}
 .layout-modal-bg { position:fixed;inset:0;background:rgba(42,31,26,.55);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px; }
 .layout-modal { background:var(--surface);border-radius:var(--radius-lg);box-shadow:0 8px 40px rgba(42,31,26,.22);width:100%;max-width:960px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden; }
 .layout-modal-header { display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:0.5px solid var(--border);flex-shrink:0; }
@@ -317,7 +400,7 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
     <span class="nav-icon">&#9786;</span> Lista de invitados
   </div>
   <div class="nav-item" onclick="showPage('timeline',this)">
-    <span class="nav-icon">&#9679;</span> Timeline del día
+    <span class="nav-icon">&#9679;</span> Cronograma
   </div>
   <div class="nav-item" onclick="showPage('platiquemos',this)">
     <span class="nav-icon">&#127908;</span> Platiquemos
@@ -404,10 +487,19 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
 
 <!-- TIMELINE -->
 <div class="page" id="page-timeline">
-  <div class="page-title">Timeline del día</div>
-  <div class="page-sub">Orden del evento — edita cada momento directamente</div>
-  <div class="timeline" id="timeline-wrap"></div>
-  <button class="tl-add-btn" onclick="addTimelineItem()">+ Agregar momento</button>
+  <div class="page-title">Cronograma · Boda civil</div>
+  <div class="page-sub">Jueves 29 de mayo de 2026 · Quinta · Guadalajara</div>
+
+  <!-- Stats bar -->
+  <div class="tl-stats-bar" id="tl-stats-bar"></div>
+
+  <!-- Secciones colapsables -->
+  <div id="timeline-wrap"></div>
+
+  <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap">
+    <button class="tl-add-btn" style="flex:1;margin:0" onclick="addEtapaItem()">+ Agregar etapa</button>
+    <button class="tl-add-btn" style="flex:1;margin:0;background:var(--sage-light);color:var(--sage-dark);border-color:var(--sage);border-style:solid" onclick="abrirLayoutTimeline()">🌿 Ver layout imprimible</button>
+  </div>
 </div>
 
 <!-- PLATIQUEMOS -->
@@ -503,19 +595,22 @@ const ITEMS_RAW = {
 };
 
 const TIMELINE_DEFAULT = [
-  {time:"10:00 am",title:"Llegada de proveedores y montaje",resp:"Coordinador",notas:"Verificar acceso al venue",exp:""},
-  {time:"12:00 pm",title:"Prueba de sonido y música",resp:"DJ / Técnico",notas:"",exp:""},
-  {time:"13:00 pm",title:"Llegada de fotógrafo y videógrafo",resp:"Wedding Planner",notas:"",exp:""},
-  {time:"14:00 pm",title:"Preparación de novios",resp:"Wedding Planner",notas:"",exp:""},
-  {time:"16:00 pm",title:"Llegada de invitados y cóctel de bienvenida",resp:"Coordinador",notas:"Recepción con drinks de bienvenida",exp:""},
-  {time:"17:00 pm",title:"Inicio de ceremonia",resp:"Notario / Oficial",notas:"",exp:""},
-  {time:"17:45 pm",title:"Sesión de fotos",resp:"Fotógrafo",notas:"",exp:""},
-  {time:"18:30 pm",title:"Cena / Banquete",resp:"Catering",notas:"Verificar menús especiales",exp:""},
-  {time:"19:00 pm",title:"Primer baile",resp:"DJ",notas:"",exp:""},
-  {time:"19:30 pm",title:"Corte del pastel",resp:"Wedding Planner",notas:"",exp:""},
-  {time:"20:00 pm",title:"Apertura de pista de baile",resp:"DJ / Banda",notas:"",exp:""},
-  {time:"22:00 pm",title:"Lanzamiento del ramo",resp:"Wedding Planner",notas:"",exp:""},
-  {time:"01:00 am",title:"Cierre de evento y desmontaje",resp:"Coordinador",notas:"",exp:""},
+  {time:"10:00",title:"Arreglo de novios",resp:"Salón / locación privada",notas:"",exp:"",musica:"Playlist relajada — jazz, bossa nova, lo-fi",dur:"1h",seccion:"Preparativos"},
+  {time:"11:00",title:"Sesión de fotos",resp:"Con fotógrafo oficial",notas:"",exp:"",musica:"Playlist upbeat — pop elegante, soul",dur:"2h",seccion:"Preparativos"},
+  {time:"13:00",title:"Traslado a la quinta",resp:"Wedding Planner",notas:"Incluye tiempo de llegada y acomodo",exp:"",musica:"Playlist personal en el carro",dur:"1h",seccion:"Preparativos"},
+  {time:"14:00",title:"Llegada de invitados",resp:"Coordinador en sitio",notas:"Recepción con bebidas de bienvenida",exp:"",musica:"Boleros suaves / bossa nova de fondo",dur:"1h30",seccion:"Preparativos"},
+  {time:"15:30",title:"Cóctel / Rompehielos",resp:"Coordinador",notas:"Área exterior o lobby",exp:"",musica:"Trío instrumental — jazz latino, salsa suave",dur:"1h",seccion:"Preparativos"},
+  {time:"18:30",title:"Bendición religiosa ⛪",resp:"Padre",notas:"Hora fija — sin retraso",exp:"",musica:"Ave María · Canon en Re · música sacra",dur:"1h",seccion:"Ceremonia"},
+  {time:"19:30",title:"Acomodo al salón",resp:"Wedding Planner",notas:"Buffer antes de la civil",exp:"",musica:"Instrumental de cuerdas / piano suave",dur:"30min",seccion:"Ceremonia"},
+  {time:"20:00",title:"Ceremonia civil 💍",resp:"Juez + testigos",notas:"Hora fija — coordinar con notaría",exp:"",musica:"Entrada: Canon en Re · Firma: instrumental · Salida: A Thousand Years",dur:"1h",seccion:"Ceremonia"},
+  {time:"21:00",title:"Entrada de novios",resp:"MC / Animador",notas:"Al salón principal",exp:"",musica:"Canción elegida por los novios — sorpresa 🎶",dur:"10min",seccion:"Recepción"},
+  {time:"21:10",title:"Baile de novios",resp:"DJ",notas:"",exp:"",musica:"Su canción — por confirmar",dur:"20min",seccion:"Recepción"},
+  {time:"21:30",title:"Palabras de la novia",resp:"Nydia",notas:"Micrófono disponible",exp:"",musica:"Silencio / fondo muy suave",dur:"10min",seccion:"Recepción"},
+  {time:"21:40",title:"Cena",resp:"Catering",notas:"Verificar menús especiales",exp:"",musica:"Boleros · baladas · romántico suave",dur:"1h",seccion:"Recepción"},
+  {time:"22:40",title:"Set de baile 1",resp:"DJ",notas:"",exp:"",musica:"Pop/rock en español — éxitos 80s y 90s",dur:"1h",seccion:"Fiesta"},
+  {time:"23:40",title:"Baile regional 1",resp:"Banda",notas:"",exp:"",musica:"Banda sinaloense / norteño",dur:"1h",seccion:"Fiesta"},
+  {time:"00:40",title:"Set baile moderno 2",resp:"DJ",notas:"",exp:"",musica:"Reggaetón, cumbia, salsa brava",dur:"1h",seccion:"Fiesta"},
+  {time:"01:40",title:"Baile regional 2 · Cierre",resp:"Banda",notas:"Cierre y desmontaje",exp:"",musica:"Cumbias y despedida — cierre memorable",dur:"1h",seccion:"Fiesta"},
 ];
 
 const STATUS_CLASS = {"Sin iniciar":"s-none","En proceso":"s-progress","Confirmado":"s-ok","Pagado":"s-paid","Cancelado":"s-cancel"};
@@ -530,7 +625,9 @@ CATS.forEach(c => { items[c.id] = []; });
 let catNotes = {};
 CATS.forEach(c => { catNotes[c.id] = ""; });
 let guests = [];
-let timeline = [];
+let timeline = []; /* legacy — ya no se usa para render */
+let etapas   = []; /* tl_etapas rows */
+let momentos = []; /* tl_momentos rows */
 let platNotes = [];
 
 /* -- Sync indicator -- */
@@ -543,11 +640,12 @@ function setSyncing(on) {
 async function loadAll() {
   showLoading(true);
   try {
-    const [dbItems, dbCatNotes, dbGuests, dbTimeline, dbPlat, dbMesas] = await Promise.all([
+    const [dbItems, dbCatNotes, dbGuests, dbEtapas, dbMomentos, dbPlat, dbMesas] = await Promise.all([
       sbGet("tracker_items","order=orden.asc,created_at.asc"),
       sbGet("cat_notes"),
       sbGet("guests","order=created_at.asc"),
-      sbGet("timeline","order=orden.asc,created_at.asc"),
+      sbGet("tl_etapas","order=orden.asc,created_at.asc"),
+      sbGet("tl_momentos","order=etapa_id.asc,orden.asc,created_at.asc"),
       sbGet("plat_notes","order=created_at.desc"),
       sbGet("mesas","order=orden.asc"),
     ]);
@@ -575,12 +673,9 @@ async function loadAll() {
     /* mesas */
     mesas = dbMesas;
 
-    /* timeline — if empty, seed with defaults */
-    if(dbTimeline.length === 0) {
-      await seedTimeline();
-    } else {
-      timeline = dbTimeline;
-    }
+    /* etapas + momentos */
+    etapas   = dbEtapas;
+    momentos = dbMomentos;
 
     /* plat notes — rebuild blob URLs from base64 */
     platNotes = dbPlat.map(n => {
@@ -603,6 +698,7 @@ async function loadAll() {
   showLoading(false);
   renderDashboard();
   renderCatNav();
+  renderTimeline();
 }
 
 async function seedTrackerItems() {
@@ -614,12 +710,6 @@ async function seedTrackerItems() {
   });
   const result = await sbInsert("tracker_items", rows);
   if(result) result.forEach(it => { if(items[it.cat_id]) items[it.cat_id].push(it); });
-}
-
-async function seedTimeline() {
-  const rows = TIMELINE_DEFAULT.map((ev,i) => ({...ev, orden:i}));
-  const result = await sbInsert("timeline", rows);
-  if(result) timeline = result;
 }
 
 function showLoading(on) {
@@ -1179,59 +1269,503 @@ async function moverGuestAMesa(guestId, nuevaMesa) {
   setSyncing(false);
 }
 
-/* -- Timeline -- */
+/* ── Cronograma v3: tl_etapas + tl_momentos ── */
+const TL_SECTIONS = ["Preparativos","Ceremonia","Recepción","Fiesta"];
+const TL_SECTION_COLORS = {
+  "Preparativos": {dot:"var(--sage)",     txt:"var(--sage-dark)",  border:"var(--sage)"},
+  "Ceremonia":    {dot:"var(--rose)",     txt:"var(--rose-dark)",  border:"var(--rose-mid)"},
+  "Recepción":    {dot:"var(--gold-mid)", txt:"var(--gold)",       border:"var(--gold-mid)"},
+  "Fiesta":       {dot:"var(--ink-soft)", txt:"var(--ink-soft)",   border:"var(--border-strong)"},
+};
+
+let tlDragEtapaId = null;
+
+/* ── helpers de tiempo ── */
+function toMin(t) {
+  if (!t) return 0;
+  const parts = t.split(':').map(Number);
+  let h = parts[0], m = parts[1]||0;
+  return h * 60 + m;
+}
+function durToMin(d) {
+  if (!d) return 0;
+  let total = 0;
+  const hm = d.match(/(\d+)h/);   if(hm) total += parseInt(hm[1])*60;
+  const mm = d.match(/(\d+)min/); if(mm) total += parseInt(mm[1]);
+  return total;
+}
+function minToHHMM(mins) {
+  mins = ((mins % 1440) + 1440) % 1440;
+  return String(Math.floor(mins/60)).padStart(2,'0') + ':' + String(mins%60).padStart(2,'0');
+}
+
+/* ── stats ── */
+function tlTotalMinutes() {
+  if (!etapas.length) return 0;
+  const first = toMin(etapas[0].time_ini);
+  const last  = etapas[etapas.length-1];
+  let end = toMin(last.time_ini) + durToMin(last.dur);
+  let diff = end - first;
+  if (diff < 0) diff += 1440;
+  return diff;
+}
+function tlEndTime() {
+  if (!etapas.length) return '--:--';
+  const last = etapas[etapas.length-1];
+  return minToHHMM(toMin(last.time_ini) + durToMin(last.dur));
+}
+
+function renderTimelineStats() {
+  const bar = document.getElementById('tl-stats-bar');
+  if (!bar) return;
+  const totalMin = tlTotalMinutes();
+  const hh = Math.floor(totalMin/60), mm = totalMin%60;
+  bar.innerHTML = `
+    <div class="tl-stat-card">
+      <div class="tl-stat-num">${hh}h${mm>0?' '+mm+'m':''}</div>
+      <div class="tl-stat-lbl">Duración total</div>
+    </div>
+    <div class="tl-stat-card">
+      <div class="tl-stat-num">${etapas.length}</div>
+      <div class="tl-stat-lbl">Etapas del evento</div>
+    </div>
+    <div class="tl-stat-card">
+      <div class="tl-stat-num">${tlEndTime()}</div>
+      <div class="tl-stat-lbl">Hora estimada de cierre</div>
+    </div>`;
+}
+
+/* ── render principal ── */
 function renderTimeline() {
-  document.getElementById("timeline-wrap").innerHTML = timeline.map((ev,i) => `
-    <div class="tl-row">
-      <div class="tl-time-col">
-        <input class="tl-time-input" value="${ev.time||""}" onchange="updateTimeline(${i},'time',this.value)" placeholder="00:00">
-        <div class="tl-line-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
-      </div>
-      <div style="display:flex;align-items:stretch;width:100%">
-        <div class="tl-card" style="flex:1">
-          <input class="tl-card-title-input" value="${(ev.title||"").replace(/"/g,'&quot;')}" onchange="updateTimeline(${i},'title',this.value)" placeholder="Nombre del momento…">
-          <div class="tl-meta">
-            <span style="font-size:11px;color:var(--ink-mute);text-transform:uppercase;letter-spacing:.05em">Responsable:</span>
-            <input class="tl-meta-input" value="${ev.resp||""}" onchange="updateTimeline(${i},'resp',this.value)" placeholder="Quién coordina…">
-            <span style="font-size:12px;color:var(--border-strong)">|</span>
-            <span style="font-size:11px;color:var(--ink-mute);text-transform:uppercase;letter-spacing:.05em">Notas:</span>
-            <input class="tl-meta-input" style="flex:1" value="${ev.notas||""}" onchange="updateTimeline(${i},'notas',this.value)" placeholder="Notas de coordinación…">
-            <button class="btn-del" onclick="deleteTimeline(${i})" style="margin-left:auto">&#10005;</button>
+  renderTimelineStats();
+  const wrap = document.getElementById("timeline-wrap");
+  if (!wrap) return;
+
+  const grouped = {};
+  TL_SECTIONS.forEach(s => grouped[s] = []);
+  etapas.forEach(et => {
+    const sec = et.seccion || 'Preparativos';
+    if (!grouped[sec]) grouped[sec] = [];
+    grouped[sec].push(et);
+  });
+
+  wrap.innerHTML = TL_SECTIONS.map(seccion => {
+    const grupo = grouped[seccion];
+    if (!grupo.length) return '';
+    const col = TL_SECTION_COLORS[seccion] || TL_SECTION_COLORS["Fiesta"];
+
+    const etapasHtml = grupo.map(et => {
+      const hijos = momentos.filter(m => m.etapa_id === et.id).sort((a,b) => a.orden - b.orden);
+      const isAnchor = et.nombre && (et.nombre.includes('Bendición') || et.nombre.includes('civil'));
+      const soloHijo = hijos.length === 1 && hijos[0].nombre === et.nombre;
+
+      /* momentos HTML */
+      const momentosHtml = soloHijo ? '' : hijos.map((mo, mi) => `
+        <div class="tl-momento-row" id="tlm-${mo.id}">
+          <div class="tl-momento-time">${mo.time_ini||''}</div>
+          <div class="tl-momento-dot"></div>
+          <div class="tl-momento-card">
+            <div class="tl-momento-header">
+              <input class="tl-momento-name" value="${(mo.nombre||'').replace(/"/g,'&quot;')}"
+                onchange="updateMomento(${mo.id},'nombre',this.value)"
+                placeholder="Nombre del momento…">
+              <input class="tl-momento-dur" value="${mo.dur||''}"
+                onchange="updateMomento(${mo.id},'dur',this.value)"
+                placeholder="15min">
+              <input class="tl-momento-time-input" value="${mo.time_ini||''}"
+                onchange="updateMomento(${mo.id},'time_ini',this.value)"
+                placeholder="20:05">
+              <button class="btn-del btn-del-sm" onclick="deleteMomento(${mo.id},${et.id})">✕</button>
+            </div>
+            ${mo.musica ? `<div class="tl-momento-music">🎵 <input class="tl-music-input tl-music-input-sm" value="${(mo.musica||'').replace(/"/g,'&quot;')}" onchange="updateMomento(${mo.id},'musica',this.value)" placeholder="Música…"></div>` : `<div class="tl-momento-music">🎵 <input class="tl-music-input tl-music-input-sm" value="" onchange="updateMomento(${mo.id},'musica',this.value)" placeholder="Música…"></div>`}
+            ${mo.notas ? `<div class="tl-momento-notas">📋 ${mo.notas}</div>` : ''}
           </div>
-          <div class="tl-experience-wrap">
-            <div class="tl-experience-label">&#10024; Experiencia deseada</div>
-            <textarea class="tl-experience-textarea" placeholder="Describe cómo debe sentirse este momento…" onchange="updateTimeline(${i},'exp',this.value)">${ev.exp||""}</textarea>
+        </div>`).join('');
+
+      return `
+      <div class="tl-etapa-row ${isAnchor?'tl-etapa-anchor':''}"
+        id="tl-etapa-${et.id}"
+        ondragover="tlDragOver(event,${et.id})"
+        ondragleave="tlDragLeave(event)"
+        ondrop="tlDrop(event,${et.id})"
+        ondragend="tlDragEnd(event)">
+
+        <!-- handle + tiempo -->
+        <div class="tl-etapa-left">
+          <div class="tl-drag-handle" title="Reordenar"
+            draggable="true"
+            ondragstart="tlDragStart(event,${et.id})"
+            onmousedown="document.getElementById('tl-etapa-${et.id}').setAttribute('draggable','true')"
+            onmouseup="document.getElementById('tl-etapa-${et.id}').setAttribute('draggable','false')">⠿</div>
+          <div class="tl-etapa-times">
+            <input class="tl-time2-input" value="${et.time_ini||''}"
+              onchange="updateEtapa(${et.id},'time_ini',this.value)"
+              placeholder="00:00" title="Inicio">
+            <div class="tl-etapa-arrow">↓</div>
+            <input class="tl-time2-input tl-time2-fin" value="${et.time_fin||''}"
+              onchange="updateEtapa(${et.id},'time_fin',this.value)"
+              placeholder="00:00" title="Fin">
           </div>
         </div>
+
+        <!-- card etapa -->
+        <div class="tl-card2 ${isAnchor?'tl-card2-anchor':''}">
+          <div class="tl-card2-header">
+            <input class="tl-card2-title" value="${(et.nombre||'').replace(/"/g,'&quot;')}"
+              onchange="updateEtapa(${et.id},'nombre',this.value)"
+              placeholder="Nombre de la etapa…">
+            <select class="tl-section-select" onchange="updateEtapa(${et.id},'seccion',this.value)">
+              ${TL_SECTIONS.map(s=>`<option value="${s}" ${(et.seccion||'Preparativos')===s?'selected':''}>${s}</option>`).join('')}
+            </select>
+            <span class="tl-dur-badge">${et.dur||''}</span>
+            ${isAnchor ? '<span class="tl-anchor-badge">📌 fija</span>' : ''}
+            <button class="btn-del" onclick="deleteEtapa(${et.id})">✕</button>
+          </div>
+
+          <div class="tl-card2-meta">
+            <span class="tl-meta-label">👤</span>
+            <input class="tl-meta-input2" value="${(et.notas||'').replace(/"/g,'&quot;')}"
+              onchange="updateEtapa(${et.id},'notas',this.value)"
+              placeholder="Responsable / notas…">
+          </div>
+
+          <div class="tl-music-row">
+            <span class="tl-music-icon">🎵</span>
+            <input class="tl-music-input" value="${(et.musica||'').replace(/"/g,'&quot;')}"
+              onchange="updateEtapa(${et.id},'musica',this.value)"
+              placeholder="Música general de esta etapa…">
+          </div>
+
+          <!-- momentos -->
+          ${!soloHijo && hijos.length > 0 ? `
+          <div class="tl-momentos-wrap">
+            <div class="tl-momentos-label">Momentos</div>
+            ${momentosHtml}
+          </div>` : ''}
+
+          <!-- agregar momento -->
+          <button class="tl-add-momento-btn" onclick="addMomento(${et.id})">+ momento</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div class="tl-section-block">
+      <div class="tl-section-header" style="border-left:3px solid ${col.dot}">
+        <span class="tl-section-dot" style="background:${col.dot}"></span>
+        <span class="tl-section-title" style="color:${col.txt}">${seccion.toUpperCase()}</span>
+        <span class="tl-section-count" style="color:${col.txt}">${grupo.length} etapa${grupo.length!==1?'s':''}</span>
       </div>
-    </div>`).join("");
+      <div class="tl-section-rows">${etapasHtml}</div>
+    </div>`;
+  }).join('');
 }
 
-let tlTimers = {};
-function updateTimeline(i, field, val) {
-  timeline[i][field]=val;
-  const id=timeline[i].id;
-  clearTimeout(tlTimers[id]);
-  tlTimers[id]=setTimeout(async()=>{
+/* ── CRUD etapas ── */
+let tlEtapaTimers = {};
+function updateEtapa(id, field, val) {
+  const et = etapas.find(e => e.id === id);
+  if (et) et[field] = val;
+  renderTimelineStats();
+  clearTimeout(tlEtapaTimers[id]);
+  tlEtapaTimers[id] = setTimeout(async () => {
     setSyncing(true);
-    await sbUpdate("timeline",id,{[field]:val});
+    await sbUpdate('tl_etapas', id, {[field]: val});
     setSyncing(false);
-  },600);
+  }, 600);
 }
 
-async function addTimelineItem() {
+async function addEtapaItem() {
   setSyncing(true);
-  const result = await sbInsert("timeline",[{time:"00:00",title:"Nuevo momento",resp:"",notas:"",exp:"",orden:timeline.length}]);
-  if(result&&result[0]){timeline.push(result[0]);renderTimeline();}
+  const orden = etapas.length;
+  const resEt = await sbInsert('tl_etapas', [{
+    nombre:'Nueva etapa', time_ini:'00:00', time_fin:'01:00',
+    dur:'1h', seccion:'Preparativos', musica:'', notas:'', orden
+  }]);
+  if (resEt && resEt[0]) {
+    const et = resEt[0];
+    etapas.push(et);
+    const resMo = await sbInsert('tl_momentos', [{
+      etapa_id: et.id, nombre: et.nombre, time_ini: et.time_ini,
+      dur: et.dur, musica:'', notas:'', orden:0
+    }]);
+    if (resMo && resMo[0]) momentos.push(resMo[0]);
+  }
+  setSyncing(false);
+  renderTimeline();
+}
+
+async function deleteEtapa(id) {
+  if (!confirm('¿Eliminar esta etapa y todos sus momentos?')) return;
+  setSyncing(true);
+  etapas = etapas.filter(e => e.id !== id);
+  momentos = momentos.filter(m => m.etapa_id !== id);
+  renderTimeline();
+  await sbDelete('tl_etapas', id); /* cascade elimina momentos */
   setSyncing(false);
 }
 
-async function deleteTimeline(i) {
-  const id=timeline[i].id;
+/* ── CRUD momentos ── */
+let tlMomentosTimers = {};
+function updateMomento(id, field, val) {
+  const mo = momentos.find(m => m.id === id);
+  if (mo) mo[field] = val;
+  clearTimeout(tlMomentosTimers[id]);
+  tlMomentosTimers[id] = setTimeout(async () => {
+    setSyncing(true);
+    await sbUpdate('tl_momentos', id, {[field]: val});
+    setSyncing(false);
+  }, 600);
+}
+
+async function addMomento(etapaId) {
   setSyncing(true);
-  timeline.splice(i,1); renderTimeline();
-  await sbDelete("timeline",id);
+  const et = etapas.find(e => e.id === etapaId);
+  const orden = momentos.filter(m => m.etapa_id === etapaId).length;
+  const res = await sbInsert('tl_momentos', [{
+    etapa_id: etapaId, nombre:'Nuevo momento',
+    time_ini: et ? et.time_ini : '00:00',
+    dur:'15min', musica:'', notas:'', orden
+  }]);
+  if (res && res[0]) momentos.push(res[0]);
   setSyncing(false);
+  renderTimeline();
+}
+
+async function deleteMomento(id, etapaId) {
+  const hijos = momentos.filter(m => m.etapa_id === etapaId);
+  if (hijos.length <= 1) {
+    alert('Cada etapa necesita al menos un momento.');
+    return;
+  }
+  setSyncing(true);
+  momentos = momentos.filter(m => m.id !== id);
+  renderTimeline();
+  await sbDelete('tl_momentos', id);
+  setSyncing(false);
+}
+
+/* ── Drag & drop etapas ── */
+function tlDragStart(e, etapaId) {
+  tlDragEtapaId = etapaId;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', String(etapaId));
+  const row = document.getElementById('tl-etapa-'+etapaId);
+  if (row && e.dataTransfer.setDragImage) {
+    e.dataTransfer.setDragImage(row, 40, 20);
+  }
+  setTimeout(() => {
+    if (row) row.classList.add('tl-row-dragging');
+  }, 0);
+}
+function tlDragOver(e, etapaId) {
+  e.preventDefault();
+  if (etapaId === tlDragEtapaId) return;
+  document.querySelectorAll('.tl-etapa-row').forEach(r => r.classList.remove('tl-row-dragover'));
+  const el = document.getElementById('tl-etapa-'+etapaId);
+  if (el) el.classList.add('tl-row-dragover');
+}
+function tlDragLeave(e) {
+  e.currentTarget.classList.remove('tl-row-dragover');
+}
+async function tlDrop(e, targetId) {
+  e.preventDefault();
+  document.querySelectorAll('.tl-etapa-row').forEach(r => {
+    r.classList.remove('tl-row-dragover','tl-row-dragging');
+  });
+  if (!tlDragEtapaId || tlDragEtapaId === targetId) return;
+  const fromIdx = etapas.findIndex(et => et.id === tlDragEtapaId);
+  const toIdx   = etapas.findIndex(et => et.id === targetId);
+  if (fromIdx < 0 || toIdx < 0) return;
+  const [moved] = etapas.splice(fromIdx, 1);
+  etapas.splice(toIdx, 0, moved);
+  renderTimeline();
+  setSyncing(true);
+  await Promise.all(etapas.map((et,i) => sbUpdate('tl_etapas', et.id, {orden: i})));
+  setSyncing(false);
+  tlDragEtapaId = null;
+}
+function tlDragEnd(e) {
+  document.querySelectorAll('.tl-etapa-row').forEach(r => {
+    r.classList.remove('tl-row-dragover','tl-row-dragging');
+  });
+  tlDragEtapaId = null;
+}
+
+/* -- Layout imprimible timeline -- */
+const ICON_MAP = {
+  'arreglo':'✂','sesión':'📷','fotos':'📷','traslado':'🚗','llegada':'👥',
+  'cóctel':'🥂','coctel':'🥂','bendición':'⛪','bendicion':'⛪','acomodo':'🪑',
+  'ceremonia':'💍','entrada':'👑','baile':'🎶','palabras':'🎤','cena':'🍽',
+  'set':'🎧','regional':'🎺','cierre':'🎺',
+};
+const TL_SIZES = { lg:['bendición','bendicion','civil','ceremonia'], md:['llegada','cóctel','coctel','entrada','baile','regional','cena'], };
+function etapaIcon(nombre) {
+  const n = (nombre||'').toLowerCase();
+  for(const k of Object.keys(ICON_MAP)) { if(n.includes(k)) return ICON_MAP[k]; }
+  return '🎀';
+}
+function etapaSize(nombre) {
+  const n = (nombre||'').toLowerCase();
+  if(TL_SIZES.lg.some(k=>n.includes(k))) return 'lg';
+  if(TL_SIZES.md.some(k=>n.includes(k))) return 'md';
+  return 'sm';
+}
+
+let tlLayoutActive = new Set();
+
+function abrirLayoutTimeline() {
+  /* inicializar active con todas las etapas */
+  tlLayoutActive = new Set(etapas.map(e=>e.id));
+  _renderLayoutModal();
+  document.getElementById('tl-layout-modal').style.display='flex';
+}
+function cerrarLayoutTimeline() {
+  document.getElementById('tl-layout-modal').style.display='none';
+}
+
+function _renderLayoutModal() {
+  _renderLayoutSelector();
+  _renderLayoutSVG();
+}
+
+function _renderLayoutSelector() {
+  const wrap = document.getElementById('tl-layout-selector');
+  if(!wrap) return;
+  wrap.innerHTML = etapas.map(et => `
+    <div class="tl-sel-btn ${tlLayoutActive.has(et.id)?'active':''}"
+      onclick="tlToggleEtapa(${et.id})">
+      ${et.time_ini||''} ${(et.nombre||'').split(' ')[0]}
+    </div>`).join('');
+}
+
+function tlToggleEtapa(id) {
+  if(tlLayoutActive.has(id)) { if(tlLayoutActive.size>3) tlLayoutActive.delete(id); }
+  else tlLayoutActive.add(id);
+  _renderLayoutModal();
+}
+
+function _renderLayoutSVG() {
+  const canvas = document.getElementById('tl-layout-canvas');
+  if(!canvas) return;
+
+  const vis = etapas.filter(e => tlLayoutActive.has(e.id));
+  const N = vis.length;
+
+  /* A4 landscape ratio: 297/210 = 1.414 — usamos 840x594 como unidades SVG */
+  const W = 840, H = 594;
+  const KRAFT='#EDE0CB', VINE='#561820', GREEN='#3D5C42', GOLD='#9C6B2E', MUTE='#7A5C3A';
+
+  /* Tamaños más compactos para caber en A4 */
+  const SIZES2 = {
+    sm:{tick:8,  arm:44, nameSize:8.5, musicSize:7,  iconSize:13, iconDY:5, lw:1.2},
+    md:{tick:13, arm:60, nameSize:10,  musicSize:8,  iconSize:17, iconDY:6, lw:1.8},
+    lg:{tick:20, arm:82, nameSize:13,  musicSize:9,  iconSize:22, iconDY:8, lw:2.5},
+  };
+
+  const PAD = 28;
+  const ITEM_W = Math.max(44, Math.min(72, Math.floor((W - PAD*2 - 20) / Math.max(N,1))));
+  const MID_Y = H / 2 + 10; /* ligeramente abajo del centro para dar espacio al título */
+
+  function leaf(cx,cy,angle,len,col){
+    const r=angle*Math.PI/180,ex=cx+Math.cos(r)*len,ey=cy+Math.sin(r)*len;
+    const mx=cx+Math.cos(r)*len*.5-Math.sin(r)*len*.18,my=cy+Math.sin(r)*len*.5+Math.cos(r)*len*.18;
+    return `<path d="M${cx},${cy} Q${mx},${my} ${ex},${ey} Q${mx+Math.sin(r)*len*.14},${my-Math.cos(r)*len*.14} ${cx},${cy}" fill="${col}" opacity=".75"/>`;
+  }
+  function stemL(x1,y1,x2,y2,col,w){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;}
+
+  function botanic(){
+    let s='';
+    /* top-left */
+    s+=stemL(0,24,56,8,GREEN,1.1)+stemL(0,24,50,46,GREEN,.9);
+    [[14,-50],[24,-40],[36,-35],[46,-22]].forEach(([x,a])=>{s+=leaf(x,24+x*.28,a,12,GREEN);});
+    [[12,50],[24,60],[36,65],[48,75]].forEach(([x,a])=>{s+=leaf(x,24+x*.38,a,10,GREEN);});
+    s+=stemL(8,0,8,34,GREEN,.7);
+    [8,18,28].forEach(y=>{s+=leaf(8,y,-30,9,GREEN)+leaf(8,y,210,8,GREEN);});
+    /* top-right */
+    s+=stemL(W,18,W-56,4,GREEN,1.1)+stemL(W,18,W-50,42,GREEN,.9);
+    [[W-14,-130],[W-24,-140],[W-36,-145],[W-46,-158]].forEach(([x,a])=>{s+=leaf(x,18+(W-x)*.22,a,12,GREEN);});
+    [[W-12,130],[W-24,120],[W-36,115],[W-48,105]].forEach(([x,a])=>{s+=leaf(x,18+(W-x)*.32,a,10,GREEN);});
+    /* bottom-left */
+    s+=stemL(0,H-24,46,H-7,GREEN,.9);
+    [[10,130],[22,138],[36,146]].forEach(([x,a])=>{s+=leaf(x,H-24+x*.1,a,10,GREEN);});
+    /* bottom-right */
+    s+=stemL(W,H-24,W-46,H-7,GREEN,.9);
+    [[W-10,-50+180],[W-22,-42+180],[W-36,-34+180]].forEach(([x,a])=>{s+=leaf(x,H-24+(W-x)*.1,a,10,GREEN);});
+    /* berries */
+    [[18,14],[30,9],[W-18,11],[W-30,6]].forEach(([x,y])=>{s+=`<circle cx="${x}" cy="${y}" r="2" fill="${VINE}" opacity=".6"/>`;});
+    return s;
+  }
+
+  function wrapT(text,maxW,size){
+    const maxC=Math.floor(maxW/(size*.58)),words=(text||'').replace(/\n/g,' ').split(' ');
+    const lines=[];let cur='';
+    words.forEach(w=>{if((cur+' '+w).trim().length>maxC&&cur){lines.push(cur.trim());cur=w;}else cur=(cur+' '+w).trim();});
+    if(cur)lines.push(cur.trim());
+    return lines;
+  }
+
+  let out='';
+  /* fondo kraft */
+  out+=`<rect x="0" y="0" width="${W}" height="${H}" fill="${KRAFT}"/>`;
+  /* grain sutil */
+  for(let y=0;y<H;y+=3.5) out+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#C4A882" stroke-width=".3" opacity=".14"/>`;
+  out+=botanic();
+
+  /* título centrado arriba */
+  out+=`<text x="${W/2}" y="32" text-anchor="middle" font-size="26" font-family="Georgia,serif" font-style="italic" fill="${VINE}">The Wedding Day</text>`;
+  out+=`<text x="${W/2}" y="46" text-anchor="middle" font-size="8" font-family="sans-serif" letter-spacing="2.5" fill="${MUTE}">29 DE MAYO DE 2026  ·  QUINTA ARREBOLEDA  ·  ARTEAGA, COAH.</text>`;
+
+  /* línea central */
+  out+=`<line x1="${PAD}" y1="${MID_Y}" x2="${W-PAD}" y2="${MID_Y}" stroke="${VINE}" stroke-width="1.2"/>`;
+  out+=`<circle cx="${PAD}" cy="${MID_Y}" r="3" fill="${VINE}"/>`;
+  out+=`<circle cx="${W-PAD}" cy="${MID_Y}" r="3" fill="${VINE}"/>`;
+  out+=`<circle cx="${PAD}" cy="${MID_Y}" r="5.5" fill="none" stroke="${VINE}" stroke-width=".6"/>`;
+  out+=`<circle cx="${W-PAD}" cy="${MID_Y}" r="5.5" fill="none" stroke="${VINE}" stroke-width=".6"/>`;
+
+  vis.forEach((et,i)=>{
+    const up=i%2===0, sz=etapaSize(et.nombre), cfg=SIZES2[sz];
+    const cx=PAD+10+i*ITEM_W+ITEM_W/2, sign=up?-1:1;
+    const isAnc=et.nombre&&(et.nombre.toLowerCase().includes('bendic')||et.nombre.toLowerCase().includes('civil'));
+    const col=isAnc?VINE:sz==='lg'?GOLD:GREEN;
+
+    /* tick */
+    out+=`<line x1="${cx}" y1="${MID_Y-cfg.tick}" x2="${cx}" y2="${MID_Y+cfg.tick}" stroke="${col}" stroke-width="${cfg.lw}" stroke-linecap="round"/>`;
+    if(isAnc) out+=`<rect x="${cx-4}" y="${MID_Y-4}" width="8" height="8" rx="1.5" transform="rotate(45,${cx},${MID_Y})" fill="${VINE}"/>`;
+
+    /* brazo */
+    const armS=MID_Y+sign*(cfg.tick+3), armE=MID_Y+sign*(cfg.tick+cfg.arm-8);
+    out+=`<line x1="${cx}" y1="${armS}" x2="${cx}" y2="${armE}" stroke="${col}" stroke-width=".7" stroke-dasharray="2.5,2.5"/>`;
+
+    /* ícono */
+    const iconY=MID_Y+sign*(cfg.tick+cfg.arm);
+    out+=`<text x="${cx}" y="${iconY+cfg.iconDY}" text-anchor="middle" font-size="${cfg.iconSize}" font-family="sans-serif">${etapaIcon(et.nombre)}</text>`;
+
+    /* hora — entre tick y línea, mismo lado que el ícono */
+    const timeY=up?MID_Y-cfg.tick-5:MID_Y+cfg.tick+10;
+    out+=`<text x="${cx}" y="${timeY}" text-anchor="middle" font-size="9.5" font-family="Georgia,serif" font-weight="bold" fill="${VINE}">${et.time_ini||''}</text>`;
+
+    /* nombre + música */
+    const nameL=wrapT(et.nombre,ITEM_W-2,cfg.nameSize);
+    const musicL=wrapT(et.musica||'',ITEM_W-2,cfg.musicSize);
+    const LHN=cfg.nameSize*1.22, LHM=cfg.musicSize*1.28;
+    const blockH=nameL.length*LHN+musicL.length*LHM+3;
+    let ny=up?iconY-cfg.iconSize-3-blockH+LHN:iconY+cfg.iconSize+7;
+
+    nameL.forEach((ln,li)=>{
+      out+=`<text x="${cx}" y="${ny+li*LHN}" text-anchor="middle" font-size="${cfg.nameSize}" font-family="Georgia,serif" font-weight="bold" fill="${isAnc?VINE:'#3A2515'}">${ln.toUpperCase()}</text>`;
+    });
+    musicL.forEach((ln,li)=>{
+      out+=`<text x="${cx}" y="${ny+nameL.length*LHN+2+li*LHM}" text-anchor="middle" font-size="${cfg.musicSize}" font-family="Georgia,serif" font-style="italic" fill="${MUTE}">${ln}</text>`;
+    });
+  });
+
+  /* firma abajo */
+  out+=`<text x="${W/2}" y="${H-14}" text-anchor="middle" font-size="16" font-family="Georgia,serif" font-style="italic" fill="${VINE}">Nydia &amp; Octavio</text>`;
+
+  canvas.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  canvas.style.width='100%';
+  canvas.style.height='auto';
+  canvas.innerHTML=out;
 }
 
 /* -- Platiquemos -- */
@@ -1587,6 +2121,26 @@ function cerrarLayoutMesas() {
 /* -- Boot -- */
 loadAll();
 </script>
+<!-- LAYOUT TIMELINE MODAL -->
+<div id="tl-layout-modal" class="tl-layout-modal-bg" style="display:none" onclick="if(event.target===this)cerrarLayoutTimeline()">
+  <div class="tl-layout-modal">
+    <div class="tl-layout-modal-hdr">
+      <span class="tl-layout-modal-title">🌿 Layout imprimible · Cronograma</span>
+      <button class="tl-layout-modal-close" onclick="cerrarLayoutTimeline()">✕</button>
+    </div>
+    <div class="tl-layout-selector-wrap">
+      <div class="tl-layout-selector-hint">Selecciona las etapas a mostrar</div>
+      <div class="tl-layout-selector" id="tl-layout-selector"></div>
+    </div>
+    <div class="tl-layout-canvas-wrap">
+      <svg id="tl-layout-canvas" xmlns="http://www.w3.org/2000/svg" style="display:block;min-width:560px"></svg>
+    </div>
+    <div class="tl-layout-print-bar">
+      <button class="tl-print-btn" onclick="window.print()">🖨 Imprimir cronograma</button>
+    </div>
+  </div>
+</div>
+
 <!-- LAYOUT DE MESAS MODAL -->
 <div id="layout-modal" class="layout-modal-bg" style="display:none" onclick="cerrarLayoutMesas()">
   <div class="layout-modal" onclick="event.stopPropagation()">
