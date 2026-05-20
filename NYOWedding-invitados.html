@@ -254,8 +254,11 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
 .mesas-chips { display:flex;flex-wrap:wrap;gap:8px;align-items:center; }
 .mesa-chip { display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:20px;padding:4px 10px 4px 12px;font-size:13px;color:var(--ink-soft); }
 .mesa-chip-name { outline:none;border:none;background:transparent;font-size:13px;color:var(--ink);font-family:var(--font-body);min-width:60px;max-width:140px; }
+/* Mesa chip nav button */
 .mesa-chip-del { background:none;border:none;cursor:pointer;color:var(--ink-mute);font-size:13px;padding:0;line-height:1;transition:color .12s; }
 .mesa-chip-del:hover { color:var(--rose); }
+.mesa-chip-nav { background:none;border:none;cursor:pointer;color:var(--ink-mute);font-size:11px;padding:0 1px;line-height:1;transition:color .12s; }
+.mesa-chip-nav:hover { color:var(--rose-dark); }
 .btn-add-mesa { display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border:0.5px dashed var(--rose-mid);border-radius:20px;background:transparent;color:var(--rose-mid);font-size:12px;font-family:var(--font-body);cursor:pointer;transition:background .12s; }
 .btn-add-mesa:hover { background:var(--rose-light); }
 
@@ -384,7 +387,6 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
   <span style="color:var(--gold-mid);font-size:13px;opacity:.7">✦</span>
   <span style="font-family:var(--font-heading);font-size:14px;color:var(--sage);letter-spacing:.04em;white-space:nowrap">Wedding Planner</span>
   <div class="topbar-spacer"></div>
-  <button class="btn-export" onclick="exportExcelGuests()">onclick="exportCSV()">&#8595; CSV#8595; Excel</button>
 </div>
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
@@ -480,6 +482,7 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
     <div id="guest-metrics" style="display:flex;gap:14px;font-size:13px;color:var(--ink-mute);flex-wrap:wrap"></div>
     <button class="btn-add" onclick="addGuest()">+ Agregar</button>
     <button class="btn-add" style="background:var(--sage-light);color:var(--sage-dark);border-color:var(--sage)" onclick="abrirLayoutMesas()">🪑 Ver layout de mesas</button>
+    <button class="btn-export" onclick="exportExcelGuests()" title="Exportar todos los invitados a Excel">↓ Excel</button>
   </div>
 
   <div id="guests-by-mesa"></div>
@@ -983,17 +986,25 @@ function renderMesasManager() {
     container.innerHTML = `<span style="font-size:12px;color:var(--ink-mute)">Sin mesas creadas aún.</span>`;
     return;
   }
+  const sinMesaCount = guests.filter(g => !g.mesa_grupo || g.mesa_grupo === 'Sin mesa').length;
+  const sinMesaChip = sinMesaCount > 0 ? `
+    <div class="mesa-chip" style="border-color:var(--gold-mid);background:var(--gold-light)" title="Invitados sin mesa asignada">
+      <span class="mesa-chip-name" style="color:var(--gold);font-weight:500;cursor:default;background:transparent;border:none;padding:0">Sin mesa</span>
+      <span style="font-size:11px;color:var(--gold);background:rgba(156,107,46,.12);border-radius:20px;padding:1px 7px;margin-left:2px;font-weight:600">${sinMesaCount}</span>
+    </div>` : '';
+
   container.innerHTML = mesas.map(m => {
     const count = guests.filter(g => g.mesa_grupo === m.nombre).length;
     return `
     <div class="mesa-chip" id="chip-${m.id}">
+      <button class="mesa-chip-nav" onclick="scrollToMesa('${m.nombre.replace(/'/g,"\\'")}')" title="Ir a esta mesa">↓</button>
       <input class="mesa-chip-name" value="${(m.nombre||'').replace(/"/g,'&quot;')}"
         onchange="renameMesa(${m.id}, this.value)"
         style="width:${Math.max(60, (m.nombre||'').length * 8)}px">
       <span style="font-size:11px;color:var(--ink-mute);background:var(--surface2);border-radius:20px;padding:1px 7px;margin-left:2px">${count}</span>
-      <button class="mesa-chip-del" onclick="deleteMesa(${m.id})" title="Eliminar mesa">✕</button>
+      <button class="mesa-chip-del" onclick="deleteMesaConfirm(${m.id},'${m.nombre.replace(/'/g,"\\'")}',${count})" title="Eliminar mesa">✕</button>
     </div>
-  `}).join('');
+  `}).join('') + sinMesaChip;
 }
 
 async function addMesa() {
@@ -1024,10 +1035,30 @@ async function renameMesa(id, nombre) {
   setSyncing(false);
 }
 
+function scrollToMesa(nombre) {
+  /* busca el grupo de mesa por nombre y hace scroll */
+  const esc = CSS.escape(nombre);
+  const el = document.getElementById('mesa-group-' + esc);
+  if (el) {
+    el.scrollIntoView({behavior:'smooth', block:'start'});
+    /* flash visual para ubicar */
+    el.style.transition = 'outline .1s';
+    el.style.outline = '2px solid var(--gold-mid)';
+    el.style.borderRadius = '8px';
+    setTimeout(() => { el.style.outline = ''; }, 1200);
+  }
+}
+
+function deleteMesaConfirm(id, nombre, count) {
+  const msg = count > 0
+    ? `¿Eliminar "${nombre}"?\n\n${count} invitado${count!==1?'s':''} pasará${count!==1?'n':''} a "Sin mesa".\n\nEsta acción no se puede deshacer.`
+    : `¿Eliminar "${nombre}"?\n\nLa mesa está vacía. Esta acción no se puede deshacer.`;
+  if (confirm(msg)) deleteMesa(id);
+}
+
 async function deleteMesa(id) {
   const m = mesas.find(x => x.id === id);
   if (!m) return;
-  if (!confirm(`¿Eliminar "${m.nombre}"? Los invitados pasarán a "Sin mesa".`)) return;
   setSyncing(true);
   const afectados = guests.filter(g => g.mesa_grupo === m.nombre);
   guests.forEach(g => { if (g.mesa_grupo === m.nombre) g.mesa_grupo = 'Sin mesa'; });
@@ -1912,52 +1943,34 @@ function goTracker(catId) {
 function exportCSV() { exportExcelGuests(); } /* legacy alias */
 
 async function exportExcelGuests() {
-  /* Trae TODOS los guests incluyendo borrados directamente de Supabase */
   setSyncing(true);
   const todos = await sbGet('guests','order=created_at.asc') || [];
   setSyncing(false);
 
+  const esc = v => {
+    const s = String(v || '');
+    return s.includes(',') || s.includes('"') || s.includes('\n')
+      ? `"${s.replace(/"/g, '""')}"`
+      : s;
+  };
+
   const cols = ['Nombre','Contacto','Relación','Lado','Tipo','Confirmación','Mesa','Borrado'];
+  const rows = todos.map(g => [
+    g.name, g.contacto, g.relacion, g.lado,
+    g.tipo === 'N' ? 'Niño' : 'Adulto',
+    g.conf, g.mesa_grupo,
+    g.borrado ? 'Sí' : 'No'
+  ].map(esc).join(','));
 
-  /* Genera un HTML que Excel abre y respeta el encoding */
-  const esc = v => String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-
-  const rows = todos.map(g => `<tr>
-    <td>${esc(g.name)}</td>
-    <td>${esc(g.contacto)}</td>
-    <td>${esc(g.relacion)}</td>
-    <td>${esc(g.lado)}</td>
-    <td>${g.tipo==='N'?'Niño':'Adulto'}</td>
-    <td>${esc(g.conf)}</td>
-    <td>${esc(g.mesa_grupo)}</td>
-    <td>${g.borrado?'Sí':'No'}</td>
-  </tr>`).join('');
-
-  const html = `
-    <html xmlns:o="urn:schemas-microsoft-com:office:office"
-          xmlns:x="urn:schemas-microsoft-com:office:excel"
-          xmlns="http://www.w3.org/TR/REC-html40">
-    <head><meta charset="UTF-8">
-    <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>
-    <x:ExcelWorksheet><x:Name>Invitados</x:Name>
-    <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
-    </x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
-    </head><body>
-    <table border="1">
-      <thead><tr style="background:#561820;color:white;font-weight:bold">
-        ${cols.map(c=>`<th>${c}</th>`).join('')}
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-    </body></html>`;
-
-  const blob = new Blob([html], {type:'application/vnd.ms-excel;charset=utf-8'});
+  /* BOM + CSV — Excel lo abre sin warnings y respeta UTF-8 */
+  const csv = '\uFEFF' + cols.join(',') + '\n' + rows.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href     = url;
-  a.download = `invitados_NYO_${new Date().toISOString().slice(0,10)}.xls`;
+  a.download = `invitados_NYO_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
-  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
 function toggleSidebar() {
