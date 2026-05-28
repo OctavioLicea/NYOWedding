@@ -538,6 +538,7 @@ function initCollage() {
     const y = r*cellH + (cellH-size)/2 + rnd(-cellH*.1, cellH*.1);
     const el = document.createElement("div");
     el.className = "collage-photo";
+    el.dataset.id = row.id;
     el.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px;z-index:${zBase++};--r:${rot}deg;`;
     el.innerHTML = `
       ${esVideo ? `<video src="${row.url}" muted loop autoplay playsinline></video>` : `<img src="${row.url}" alt="" loading="lazy">`}
@@ -556,18 +557,25 @@ function initCollage() {
       setTimeout(() => { el.remove(); totalFotos--; numEl.textContent = totalFotos; paused = false; }, 400);
     });
     canvas.appendChild(el);
-    if (totalFotos > 1) {
-      el.style.top = (scrollY + VH*0.6 + rnd(0, VH*0.3)) + "px";
-    }
+  }
+
+  function placePhotoRealtime(row) {
+    if (placedIds.has(row.id) || row.oculta) return;
+    // Para fotos en tiempo real, colocar en zona visible
+    placePhoto(row);
+    // Ajustar posición a zona visible actual
+    const el = canvas.querySelector(`[data-id="${row.id}"]`);
+    if (el) el.style.top = (scrollY + VH*0.2 + rnd(0, VH*0.5)) + "px";
   }
 
   async function loadAll() {
-    const { data } = await sb.from(TABLA).select("*").eq("oculta", false).order("created_at", { ascending: true });
-    if (data) data.forEach(placePhoto);
+    const { data, error } = await sb.from(TABLA).select("*").order("created_at", { ascending: true });
+    if (error) { console.error("loadAll error:", error); return; }
+    if (data) data.filter(r => !r.oculta).forEach(placePhoto);
   }
 
   sb.channel("fotos-realtime")
-    .on("postgres_changes", { event: "INSERT", schema: "public", table: TABLA }, payload => placePhoto(payload.new))
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: TABLA }, payload => placePhotoRealtime(payload.new))
     .subscribe();
 
   loadAll();
