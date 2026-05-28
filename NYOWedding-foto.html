@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fotos · Nydia & Octavio</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --rose: #7D2935;
+  --rose-light: #F3E8EA;
+  --rose-dark: #561820;
+  --rose-mid: #A34455;
+  --sage-dark: #3D5C42;
+  --gold: #9C6B2E;
+  --gold-light: #F7F0E3;
+  --gold-mid: #C4973A;
+  --kraft: #EDE0CB;
+  --ink: #2A1F1A;
+  --ink-soft: #5C4A3A;
+  --ink-mute: #9C8878;
+  --surface: #FAF7F2;
+  --surface2: #F2EBE0;
+  --border: rgba(90,50,30,0.10);
+  --border-strong: rgba(90,50,30,0.20);
+  --radius: 10px;
+  --radius-lg: 16px;
+  --font-display: "Great Vibes", cursive;
+  --font-heading: "Cormorant Garamond", serif;
+  --font-body: "DM Sans", sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body { font-family: var(--font-body); background: var(--surface); color: var(--ink); min-height: 100vh; }
+
+/* ── Top bar ── */
+.top-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 0.5px solid var(--border);
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  gap: 12px;
+}
+.home-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--surface2);
+  border: 0.5px solid var(--border-strong);
+  border-radius: 30px;
+  padding: 7px 14px;
+  font-family: var(--font-heading);
+  font-size: 15px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: background .15s, color .15s;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.home-btn:hover { background: var(--rose-light); color: var(--rose-dark); }
+.home-btn svg { width: 14px; height: 14px; fill: currentColor; }
+.top-bar-title {
+  flex: 1;
+  font-family: var(--font-heading);
+  font-size: 17px;
+  color: var(--ink-mute);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.top-bar-space { width: 80px; flex-shrink: 0; }
+
+/* ── Cuerpo ── */
+.page-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: calc(100vh - 56px);
+  padding: 0 0 80px;
+}
+
+.inv-body {
+  width: 100%;
+  max-width: 480px;
+  padding: 28px 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Contador ── */
+.inv-counter {
+  text-align: center;
+  padding: 12px;
+  background: var(--gold-light);
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border);
+}
+.inv-counter span { font-family: var(--font-heading); font-size: 20px; color: var(--gold); }
+.inv-counter small { font-size: 12px; color: var(--ink-mute); display: block; margin-top: 2px; }
+
+/* ── Drop zone ── */
+.drop-zone {
+  border: 1.5px dashed var(--kraft);
+  border-radius: var(--radius-lg);
+  background: var(--surface2);
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  position: relative;
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--rose-mid);
+  background: var(--rose-light);
+}
+.drop-zone input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.drop-icon { font-size: 36px; margin-bottom: 12px; }
+.drop-label { font-family: var(--font-heading); font-size: 20px; color: var(--rose-dark); margin-bottom: 6px; }
+.drop-sub { font-size: 12px; color: var(--ink-mute); }
+
+/* ── Preview grid ── */
+.preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.preview-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface2);
+  border: 0.5px solid var(--border);
+}
+.preview-item img, .preview-item video { width: 100%; height: 100%; object-fit: cover; }
+.preview-remove {
+  position: absolute; top: 4px; right: 4px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(42,31,26,.6); color: #fff;
+  border: none; cursor: pointer; font-size: 12px;
+  display: flex; align-items: center; justify-content: center;
+}
+.preview-badge {
+  position: absolute; bottom: 4px; left: 4px;
+  font-size: 10px; background: rgba(42,31,26,.55);
+  color: #fff; padding: 2px 6px; border-radius: 20px;
+}
+
+/* ── Nombre input ── */
+.nombre-wrap { display: flex; flex-direction: column; gap: 6px; }
+.nombre-label { font-size: 12px; color: var(--ink-mute); letter-spacing: .04em; text-transform: uppercase; }
+.nombre-input {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--surface2);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color .15s;
+}
+.nombre-input:focus { border-color: var(--rose-mid); }
+.nombre-input::placeholder { color: var(--ink-mute); }
+
+/* ── Botón subir ── */
+.btn-upload {
+  width: 100%;
+  padding: 14px;
+  background: var(--rose);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-family: var(--font-heading);
+  font-size: 20px;
+  letter-spacing: .02em;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+.btn-upload:hover { background: var(--rose-dark); }
+.btn-upload:active { transform: scale(.98); }
+.btn-upload:disabled { background: var(--ink-mute); cursor: not-allowed; }
+
+/* ── Progress ── */
+.upload-progress { display: none; flex-direction: column; gap: 8px; }
+.upload-progress.visible { display: flex; }
+.progress-track { height: 6px; background: var(--surface2); border-radius: 10px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--rose); border-radius: 10px; transition: width .3s; width: 0%; }
+.progress-label { font-size: 12px; color: var(--ink-mute); text-align: center; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--ink); color: #FAF7F2;
+  padding: 12px 24px; border-radius: var(--radius-lg);
+  font-size: 13px; font-family: var(--font-body);
+  transition: transform .3s; z-index: 100; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.ok  { background: var(--sage-dark); }
+.toast.err { background: var(--rose-dark); }
+
+/* ── FAB cámara ── */
+.fab {
+  position: fixed; bottom: 24px; right: 18px; z-index: 50;
+  width: 58px; height: 58px; border-radius: 50%;
+  background: var(--rose); color: #fff; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 4px 18px rgba(125,41,53,.40);
+  transition: transform .15s, box-shadow .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.fab:hover { transform: scale(1.07); }
+.fab:active { transform: scale(.94); }
+
+/* ── MODO COLLAGE ── */
+#modo-collage {
+  display: none;
+  width: 100vw; height: 100vh;
+  background: var(--surface);
+  overflow: hidden; position: relative;
+}
+.collage-header {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+  text-align: center; padding: 20px 24px 16px;
+  background: linear-gradient(to bottom, var(--surface) 70%, transparent);
+  pointer-events: none;
+}
+.collage-title { font-family: var(--font-display); font-size: 64px; color: var(--rose-dark); line-height: 1; }
+.collage-sub { font-family: var(--font-heading); font-size: 16px; color: var(--ink-mute); letter-spacing: .1em; margin-top: 4px; }
+.collage-canvas { position: absolute; left: 0; right: 0; top: 0; }
+.collage-photo {
+  position: absolute;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 6px solid #fff;
+  box-shadow: 0 4px 20px rgba(42,31,26,.25);
+  cursor: pointer;
+  transform: rotate(var(--r, 0deg));
+  transition: transform .2s, box-shadow .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.collage-photo:hover { transform: rotate(var(--r,0deg)) scale(1.04); box-shadow: 0 8px 32px rgba(42,31,26,.35); z-index: 999 !important; }
+.collage-photo img, .collage-photo video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-name { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(42,31,26,.5); color: #fff; font-size: 11px; text-align: center; padding: 3px 6px; font-family: var(--font-body); }
+.collage-hide-btn { display: none; position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; background: rgba(42,31,26,.7); color: #fff; border: none; cursor: pointer; font-size: 12px; align-items: center; justify-content: center; }
+.collage-hide-btn.visible { display: flex; }
+.collage-live { position: absolute; top: 16px; right: 16px; z-index: 20; display: flex; align-items: center; gap: 6px; background: rgba(42,31,26,.7); color: #FAF7F2; font-size: 11px; padding: 5px 10px; border-radius: 20px; font-family: var(--font-body); }
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: #e74c3c; animation: blink 1.2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+.collage-counter { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 20; background: rgba(42,31,26,.7); color: #FAF7F2; padding: 8px 20px; border-radius: 20px; text-align: center; font-family: var(--font-body); }
+.collage-counter-num { font-family: var(--font-heading); font-size: 28px; line-height: 1; }
+.collage-counter-lbl { font-size: 11px; opacity: .7; }
+/* Botón home en collage */
+.collage-home {
+  position: absolute; top: 16px; left: 16px; z-index: 20;
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(42,31,26,.7); color: #FAF7F2;
+  border: none; border-radius: 30px;
+  padding: 7px 14px; font-family: var(--font-body); font-size: 13px;
+  cursor: pointer; text-decoration: none;
+  transition: background .15s;
+}
+.collage-home:hover { background: rgba(42,31,26,.9); }
+.collage-home svg { width: 13px; height: 13px; fill: currentColor; }
+</style>
+</head>
+<body>
+
+<!-- ══ MODO INVITADO ══ -->
+<div id="modo-invitado">
+
+  <!-- Top bar con home -->
+  <div class="top-bar">
+    <a class="home-btn" href="index.html">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      Inicio
+    </a>
+    <div class="top-bar-title">Nydia &amp; Octavio · Fotos</div>
+    <div class="top-bar-space"></div>
+  </div>
+
+  <div class="page-wrap">
+    <div class="inv-body">
+
+      <div style="text-align:center; padding-top: 4px;">
+        <div style="font-family: var(--font-heading); font-size:16px; color: var(--ink-soft);">Comparte tus fotos con los novios 📷</div>
+      </div>
+
+      <div class="inv-counter">
+        <span id="total-fotos">—</span>
+        <small>fotos compartidas hasta ahora</small>
+        <div style="font-size:10px;color:var(--ink-mute);margin-top:4px;opacity:0.7;" id="storage-size"></div>
+      </div>
+
+      <div class="nombre-wrap">
+        <label class="nombre-label" for="nombre-input">Tu nombre (opcional)</label>
+        <input class="nombre-input" id="nombre-input" type="text" placeholder="¿Quién eres?" maxlength="40">
+      </div>
+
+      <div class="drop-zone" id="drop-zone">
+        <input type="file" id="file-input" accept="image/*,video/*" multiple>
+        <div class="drop-icon">📸</div>
+        <div class="drop-label">Selecciona o arrastra tus fotos</div>
+        <div class="drop-sub">Fotos y videos · Máximo 10 archivos a la vez</div>
+      </div>
+
+      <label style="display:block;margin-top:-8px;text-align:center;">
+        <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none">
+        <span style="display:inline-block;padding:10px 24px;background:var(--rose);color:#FAF7F2;border-radius:20px;font-family:var(--font-body);font-size:14px;cursor:pointer;">📷 Tomar foto</span>
+      </label>
+
+      <div class="preview-grid" id="preview-grid"></div>
+
+      <div class="upload-progress" id="upload-progress">
+        <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="progress-label" id="progress-label">Subiendo...</div>
+      </div>
+
+      <button class="btn-upload" id="btn-upload" disabled>Compartir con los novios 💌</button>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODO COLLAGE ══ -->
+<div id="modo-collage">
+  <div class="collage-header">
+    <div class="collage-title">Nydia &amp; Octavio</div>
+    <div class="collage-sub">29 · Mayo · 2026 · Nuestros recuerdos</div>
+  </div>
+  <div class="collage-canvas" id="collage-canvas"></div>
+  <div class="collage-live"><div class="live-dot"></div>en vivo</div>
+  <div class="collage-counter">
+    <div class="collage-counter-num" id="collage-num">0</div>
+    <div class="collage-counter-lbl">fotos</div>
+  </div>
+  <!-- Home en collage -->
+  <a class="collage-home" href="index.html">
+    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    Inicio
+  </a>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="fab-btn" aria-label="Compartir fotos" title="Compartir fotos">📷</button>
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL  = "https://qoaxifnrlxxwwdzqxmot.supabase.co";
+const SB_KEY  = "sb_publishable_P72GEsWtoUAfqiAev-oFig_SOs1cdwv";
+const SUPABASE_URL     = SB_URL;
+const SUPABASE_ANON_KEY= SB_KEY;
+const BUCKET  = "WeddingNYO";
+const TABLA   = "fotos";
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* Detectar modo */
+const params    = new URLSearchParams(location.search);
+const esCollage = params.get("modo") === "collage";
+
+if (esCollage) {
+  document.getElementById("modo-invitado").style.display = "none";
+  document.getElementById("modo-collage").style.display  = "block";
+  document.getElementById("fab-btn").style.display = "none";
+  initCollage();
+} else {
+  initInvitado();
+}
+
+/* ══ MODO INVITADO ══ */
+function initInvitado() {
+  loadTotalFotos();
+
+  const dropZone    = document.getElementById("drop-zone");
+  const fileInput   = document.getElementById("file-input");
+  const previewGrid = document.getElementById("preview-grid");
+  const btnUpload   = document.getElementById("btn-upload");
+  let archivos = [];
+
+  dropZone.addEventListener("dragover",  e => { e.preventDefault(); dropZone.classList.add("drag-over"); });
+  dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
+  dropZone.addEventListener("drop", e => {
+    e.preventDefault(); dropZone.classList.remove("drag-over");
+    addFiles([...e.dataTransfer.files]);
+  });
+  fileInput.addEventListener("change",  () => addFiles([...fileInput.files]));
+  document.getElementById("camera-input").addEventListener("change", e => addFiles([...e.target.files]));
+
+  /* FAB → scroll top */
+  document.getElementById("fab-btn").addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  function addFiles(nuevos) {
+    const ok = nuevos.filter(f => f.type.startsWith("image/") || f.type.startsWith("video/"));
+    archivos = [...archivos, ...ok].slice(0, 10);
+    renderPreviews();
+    btnUpload.disabled = archivos.length === 0;
+  }
+
+  function renderPreviews() {
+    previewGrid.innerHTML = "";
+    archivos.forEach((f, i) => {
+      const url = URL.createObjectURL(f);
+      const el  = document.createElement("div");
+      el.className = "preview-item";
+      const esVideo = f.type.startsWith("video/");
+      el.innerHTML = `
+        ${esVideo ? `<video src="${url}" muted playsinline></video>` : `<img src="${url}" alt="">`}
+        <button class="preview-remove" data-i="${i}">✕</button>
+        <span class="preview-badge">${esVideo ? "🎬" : "📷"}</span>
+      `;
+      previewGrid.appendChild(el);
+    });
+    previewGrid.querySelectorAll(".preview-remove").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        archivos.splice(+btn.dataset.i, 1);
+        renderPreviews();
+        btnUpload.disabled = archivos.length === 0;
+      });
+    });
+  }
+
+  btnUpload.addEventListener("click", subirArchivos);
+
+  async function subirArchivos() {
+    if (archivos.length === 0) return;
+    const nombre   = document.getElementById("nombre-input").value.trim() || "Invitado";
+    const progress = document.getElementById("upload-progress");
+    const fill     = document.getElementById("progress-fill");
+    const lbl      = document.getElementById("progress-label");
+    progress.classList.add("visible");
+    btnUpload.disabled = true;
+    let ok = 0;
+    for (let i = 0; i < archivos.length; i++) {
+      const f   = archivos[i];
+      const ext = f.name.split(".").pop();
+      const path= `${Date.now()}_${Math.random().toString(36).slice(2,7)}.${ext}`;
+      lbl.textContent = `Subiendo ${i+1} de ${archivos.length}…`;
+      fill.style.width = `${Math.round((i / archivos.length) * 100)}%`;
+      const { error: upErr } = await sb.storage.from(BUCKET).upload(path, f, { upsert: false });
+      if (upErr) { console.error(upErr); continue; }
+      const { data: urlData } = sb.storage.from(BUCKET).getPublicUrl(path);
+      await sb.from(TABLA).insert({ path, url: urlData.publicUrl, nombre, tipo: f.type.startsWith("video/") ? "video" : "foto", size: f.size, created_at: new Date().toISOString() });
+      ok++;
+    }
+    fill.style.width = "100%";
+    lbl.textContent  = `¡Listo! ${ok} archivo${ok!==1?"s":""} compartido${ok!==1?"s":""}  🎉`;
+    setTimeout(() => {
+      progress.classList.remove("visible");
+      fill.style.width = "0%";
+      archivos = []; renderPreviews();
+      btnUpload.disabled = true;
+      fileInput.value = "";
+      loadTotalFotos();
+    }, 2000);
+    showToast(ok > 0 ? "¡Gracias por compartir! 💌" : "Algunos archivos fallaron", ok > 0 ? "ok" : "err");
+  }
+
+  async function loadTotalFotos() {
+    const { count } = await sb.from(TABLA).select("*", { count: "exact", head: true });
+    document.getElementById("total-fotos").textContent = count ?? 0;
+    try {
+      const { data: sizes } = await sb.from(TABLA).select("size");
+      if (sizes) {
+        const totalBytes = sizes.reduce((sum, r) => sum + (r.size || 0), 0);
+        const mb  = (totalBytes / (1024*1024)).toFixed(1);
+        const pct = ((totalBytes / (1024*1024*1024))*100).toFixed(1);
+        document.getElementById("storage-size").textContent = `${mb} MB usados de 1 GB (${pct}%)`;
+      }
+    } catch(e) {}
+  }
+}
+
+/* ══ MODO COLLAGE ══ */
+function initCollage() {
+  const canvas   = document.getElementById("collage-canvas");
+  const numEl    = document.getElementById("collage-num");
+  let totalFotos = 0, zBase = 1;
+  const placedIds= new Set();
+  const VH = window.innerHeight, VW = window.innerWidth;
+  const CANVAS_H = VH * 3;
+  canvas.style.height = CANVAS_H + "px";
+
+  let scrollY = 0, paused = false;
+  const SPEED = 0.4;
+  function scrollLoop() {
+    if (!paused) {
+      scrollY += SPEED;
+      if (scrollY >= CANVAS_H - VH) scrollY = 0;
+      canvas.style.transform = `translateY(-${scrollY}px)`;
+    }
+    requestAnimationFrame(scrollLoop);
+  }
+  scrollLoop();
+
+  document.getElementById("modo-collage").addEventListener("dblclick", e => {
+    if (!e.target.closest(".collage-photo")) paused = !paused;
+  });
+
+  const COLS = 4, ROWS = 9;
+  const cellW = VW / COLS, cellH = CANVAS_H / ROWS;
+  const usedCells = new Set();
+
+  function getFreeCell() {
+    const all = [];
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++)
+        if (!usedCells.has(`${r}-${c}`)) all.push([r,c]);
+    if (all.length === 0) { usedCells.clear(); return getFreeCell(); }
+    const [r,c] = all[Math.floor(Math.random()*all.length)];
+    usedCells.add(`${r}-${c}`);
+    return [r,c];
+  }
+
+  function rnd(a,b) { return a + Math.random()*(b-a); }
+
+  function placePhoto(row) {
+    if (placedIds.has(row.id) || row.oculta) return;
+    placedIds.add(row.id);
+    totalFotos++;
+    numEl.textContent = totalFotos;
+    const esVideo = row.tipo === "video";
+    const size = rnd(150,210), rot = rnd(-10,10);
+    const [r,c] = getFreeCell();
+    const x = c*cellW + (cellW-size)/2 + rnd(-cellW*.1, cellW*.1);
+    const y = r*cellH + (cellH-size)/2 + rnd(-cellH*.1, cellH*.1);
+    const el = document.createElement("div");
+    el.className = "collage-photo";
+    el.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px;z-index:${zBase++};--r:${rot}deg;`;
+    el.innerHTML = `
+      ${esVideo ? `<video src="${row.url}" muted loop autoplay playsinline></video>` : `<img src="${row.url}" alt="" loading="lazy">`}
+      ${row.nombre ? `<div class="photo-name">${row.nombre}</div>` : ""}
+      <button class="collage-hide-btn" title="Ocultar">✕</button>
+    `;
+    el.addEventListener("click", () => { el.style.zIndex = zBase++; });
+    el.addEventListener("dblclick", e => {
+      e.stopPropagation(); paused = true;
+      el.querySelector(".collage-hide-btn").classList.toggle("visible");
+    });
+    el.querySelector(".collage-hide-btn").addEventListener("click", async e => {
+      e.stopPropagation();
+      await sb.from(TABLA).update({ oculta: true }).eq("id", row.id);
+      el.style.transition = "opacity 0.4s"; el.style.opacity = "0";
+      setTimeout(() => { el.remove(); totalFotos--; numEl.textContent = totalFotos; paused = false; }, 400);
+    });
+    canvas.appendChild(el);
+    if (totalFotos > 1) {
+      el.style.top = (scrollY + VH*0.6 + rnd(0, VH*0.3)) + "px";
+    }
+  }
+
+  async function loadAll() {
+    const { data } = await sb.from(TABLA).select("*").eq("oculta", false).order("created_at", { ascending: true });
+    if (data) data.forEach(placePhoto);
+  }
+
+  sb.channel("fotos-realtime")
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: TABLA }, payload => placePhoto(payload.new))
+    .subscribe();
+
+  loadAll();
+}
+
+function showToast(msg, type="") {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.className = `toast ${type}`;
+  void t.offsetWidth; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 3500);
+}
+<\/script>
+</body>
+</html>
