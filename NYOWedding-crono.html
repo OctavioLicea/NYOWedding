@@ -162,7 +162,10 @@ body.modo-layout #tl-layout-fullscreen {
     <div class="top-bar-space"></div>
   </div>
   <div style="flex:1;overflow:auto;padding:16px 20px 40px;background:var(--surface2)">
-    <svg id="tl-layout-canvas-full" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto;max-width:900px;margin:0 auto"></svg>
+    <div id="landscape-hint" style="display:none;text-align:center;padding:10px 16px;font-family:var(--font-body);font-size:13px;color:var(--ink-mute);background:var(--gold-light);border-radius:var(--radius);margin-bottom:12px;max-width:1200px;margin-left:auto;margin-right:auto">
+      📱 Gira tu celular para ver el cronograma completo
+    </div>
+    <svg id="tl-layout-canvas-full" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto;max-width:1200px;margin:0 auto"></svg>
   </div>
 </div>
 
@@ -220,6 +223,21 @@ async function loadAll() {
     document.getElementById("tl-layout-fullscreen").style.display = "flex";
     tlLayoutActive = new Set(etapas.map(e => e.id));
     _renderLayoutSVGInto(document.getElementById("tl-layout-canvas-full"));
+
+    // Intentar bloquear orientación landscape
+    try {
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock("landscape").catch(() => {});
+      }
+    } catch(e) {}
+
+    // Hint si está en portrait
+    function checkOrientation() {
+      const hint = document.getElementById("landscape-hint");
+      if (hint) hint.style.display = window.innerWidth < window.innerHeight ? "block" : "none";
+    }
+    checkOrientation();
+    window.addEventListener("resize", checkOrientation);
   } else {
     renderTimelineStats();
     renderTimeline();
