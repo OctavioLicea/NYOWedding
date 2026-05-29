@@ -105,6 +105,16 @@ body{font-family:var(--font-body);background:var(--surface);color:var(--ink);min
 .tl-add-btn:hover{background:var(--sage-light);color:var(--sage-dark);border-color:var(--sage)}
 
 @media print{.top-bar,.tl-layout-print-bar{display:none}}
+
+/* Modo layout para invitados */
+body.modo-layout .page-wrap { display: none; }
+body.modo-layout #tl-layout-fullscreen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--surface2);
+}
+#tl-layout-fullscreen { display: none; }
 @media(max-width:520px){.tl-etapa-row{grid-template-columns:68px 1fr}}
 </style>
 </head>
@@ -141,6 +151,21 @@ body{font-family:var(--font-body);background:var(--surface);color:var(--ink);min
   </div>
 </div>
 
+<!-- MODO LAYOUT INVITADO (fullscreen, sin modal) -->
+<div id="tl-layout-fullscreen">
+  <div class="top-bar">
+    <a class="home-btn" href="index.html">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      Inicio
+    </a>
+    <div class="top-bar-title">Cronograma · 29 Mayo 2026</div>
+    <div class="top-bar-space"></div>
+  </div>
+  <div style="flex:1;overflow:auto;padding:16px 20px 40px;background:var(--surface2)">
+    <svg id="tl-layout-canvas-full" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto;max-width:900px;margin:0 auto"></svg>
+  </div>
+</div>
+
 <!-- LAYOUT MODAL -->
 <div id="tl-layout-modal" class="tl-layout-modal-bg" style="display:none" onclick="if(event.target===this)cerrarLayoutTimeline()">
   <div class="tl-layout-modal">
@@ -168,6 +193,9 @@ const SB_URL = "https://qoaxifnrlxxwwdzqxmot.supabase.co";
 const SB_KEY = "sb_publishable_P72GEsWtoUAfqiAev-oFig_SOs1cdwv";
 const sbH = {"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json"};
 
+const esModoLayout = new URLSearchParams(location.search).get("modo") === "layout";
+if (esModoLayout) document.body.classList.add("modo-layout");
+
 async function sbGet(table, params="") {
   const r = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, {headers:sbH});
   return r.ok ? r.json() : [];
@@ -188,8 +216,14 @@ async function loadAll() {
     sbGet("tl_etapas","order=orden.asc,created_at.asc"),
     sbGet("tl_momentos","order=etapa_id.asc,orden.asc,created_at.asc"),
   ]);
-  renderTimelineStats();
-  renderTimeline();
+  if (esModoLayout) {
+    document.getElementById("tl-layout-fullscreen").style.display = "flex";
+    tlLayoutActive = new Set(etapas.map(e => e.id));
+    _renderLayoutSVGInto(document.getElementById("tl-layout-canvas-full"));
+  } else {
+    renderTimelineStats();
+    renderTimeline();
+  }
 }
 
 function toMin(t){if(!t)return 0;const p=t.split(":").map(Number);return p[0]*60+(p[1]||0)}
@@ -273,14 +307,15 @@ const ICON_MAP={"arreglo":"✂","sesión":"📷","fotos":"📷","traslado":"🚗
 const TL_SIZES={lg:["bendición","bendicion","civil","ceremonia"],md:["llegada","cóctel","coctel","entrada","baile","regional","cena"]};
 function etapaIcon(n){const nl=(n||"").toLowerCase();for(const k of Object.keys(ICON_MAP)){if(nl.includes(k))return ICON_MAP[k]}return "🎀"}
 function etapaSize(n){const nl=(n||"").toLowerCase();if(TL_SIZES.lg.some(k=>nl.includes(k)))return"lg";if(TL_SIZES.md.some(k=>nl.includes(k)))return"md";return"sm"}
+function toAMPM(t){if(!t)return"";const [hh,mm]=t.split(":").map(Number);const ampm=hh>=12?"pm":"am";const h=hh%12||12;return`${h}:${String(mm).padStart(2,"0")} ${ampm}`}
 let tlLayoutActive=new Set();
 function abrirLayoutTimeline(){tlLayoutActive=new Set(etapas.map(e=>e.id));_renderLayoutModal();document.getElementById("tl-layout-modal").style.display="flex"}
 function cerrarLayoutTimeline(){document.getElementById("tl-layout-modal").style.display="none"}
-function _renderLayoutModal(){_renderLayoutSelector();_renderLayoutSVG()}
+function _renderLayoutModal(){_renderLayoutSelector();_renderLayoutSVGInto(document.getElementById("tl-layout-canvas"))}
 function _renderLayoutSelector(){const wrap=document.getElementById("tl-layout-selector");if(!wrap)return;wrap.innerHTML=etapas.map(et=>`<div class="tl-sel-btn ${tlLayoutActive.has(et.id)?"active":""}" onclick="tlToggleEtapa(${et.id})">${et.time_ini||""} ${(et.nombre||"").split(" ")[0]}</div>`).join("")}
 function tlToggleEtapa(id){if(tlLayoutActive.has(id)){if(tlLayoutActive.size>3)tlLayoutActive.delete(id)}else tlLayoutActive.add(id);_renderLayoutModal()}
-function _renderLayoutSVG(){
-  const canvas=document.getElementById("tl-layout-canvas");if(!canvas)return;
+function _renderLayoutSVGInto(canvas){
+  if(!canvas)return;
   const vis=etapas.filter(e=>tlLayoutActive.has(e.id));const N=vis.length;
   const W=840,H=594,KRAFT="#EDE0CB",VINE="#561820",GREEN="#3D5C42",GOLD="#9C6B2E",MUTE="#7A5C3A";
   const SIZES2={sm:{tick:8,arm:44,nameSize:8.5,musicSize:7,iconSize:13,iconDY:5,lw:1.2},md:{tick:13,arm:60,nameSize:10,musicSize:8,iconSize:17,iconDY:6,lw:1.8},lg:{tick:20,arm:82,nameSize:13,musicSize:9,iconSize:22,iconDY:8,lw:2.5}};
@@ -310,7 +345,7 @@ function _renderLayoutSVG(){
     const iconY=MID_Y+sign*(cfg.tick+cfg.arm);
     out+=`<text x="${cx}" y="${iconY+cfg.iconDY}" text-anchor="middle" font-size="${cfg.iconSize}" font-family="sans-serif">${etapaIcon(et.nombre)}</text>`;
     const timeY=up?MID_Y-cfg.tick-5:MID_Y+cfg.tick+10;
-    out+=`<text x="${cx}" y="${timeY}" text-anchor="middle" font-size="9.5" font-family="Georgia,serif" font-weight="bold" fill="${VINE}">${et.time_ini||""}</text>`;
+    out+=`<text x="${cx}" y="${timeY}" text-anchor="middle" font-size="9.5" font-family="Georgia,serif" font-weight="bold" fill="${VINE}">${toAMPM(et.time_ini)}</text>`;
     const nameL=wrapT(et.nombre,ITEM_W-2,cfg.nameSize),musicL=wrapT(et.musica||"",ITEM_W-2,cfg.musicSize);
     const LHN=cfg.nameSize*1.22,LHM=cfg.musicSize*1.28,blockH=nameL.length*LHN+musicL.length*LHM+3;
     let ny=up?iconY-cfg.iconSize-3-blockH+LHN:iconY+cfg.iconSize+7;

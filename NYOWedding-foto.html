@@ -452,6 +452,34 @@ if (esCollage) {
   initInvitado();
 }
 
+/* ══ COMPRESIÓN EN CLIENTE ══ */
+function comprimirImagen(file, maxPx = 1920, calidad = 0.82) {
+  return new Promise(resolve => {
+    // Videos no se comprimen
+    if (!file.type.startsWith("image/")) { resolve(file); return; }
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      // Solo redimensionar si excede maxPx
+      if (width > maxPx || height > maxPx) {
+        if (width > height) { height = Math.round(height * maxPx / width); width = maxPx; }
+        else { width = Math.round(width * maxPx / height); height = maxPx; }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width; canvas.height = height;
+      canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+      canvas.toBlob(blob => {
+        if (!blob || blob.size >= file.size) { resolve(file); return; } // si no mejoró, usar original
+        resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }));
+      }, "image/jpeg", calidad);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+}
+
 /* ══ MODO INVITADO ══ */
 function initInvitado() {
   loadTotalFotos();
@@ -476,8 +504,20 @@ function initInvitado() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
+  const MAX_VIDEO_MB = 30;
+
   function addFiles(nuevos) {
-    const ok = nuevos.filter(f => f.type.startsWith("image/") || f.type.startsWith("video/"));
+    const rechazados = [];
+    const ok = nuevos.filter(f => {
+      if (f.type.startsWith("video/") && f.size > MAX_VIDEO_MB * 1024 * 1024) {
+        rechazados.push(f.name);
+        return false;
+      }
+      return f.type.startsWith("image/") || f.type.startsWith("video/");
+    });
+    if (rechazados.length > 0) {
+      showToast(`Video muy pesado (máx ${MAX_VIDEO_MB} MB) 🎬`, "err");
+    }
     archivos = [...archivos, ...ok].slice(0, 10);
     renderPreviews();
     btnUpload.disabled = archivos.length === 0;
@@ -519,8 +559,10 @@ function initInvitado() {
     btnUpload.disabled = true;
     let ok = 0;
     for (let i = 0; i < archivos.length; i++) {
-      const f   = archivos[i];
-      const ext = f.name.split(".").pop();
+      const raw  = archivos[i];
+      lbl.textContent = `Preparando ${i+1} de ${archivos.length}…`;
+      const f   = await comprimirImagen(raw);
+      const ext = f.type === "image/jpeg" ? "jpg" : raw.name.split(".").pop();
       const path= `${Date.now()}_${Math.random().toString(36).slice(2,7)}.${ext}`;
       lbl.textContent = `Subiendo ${i+1} de ${archivos.length}…`;
       fill.style.width = `${Math.round((i / archivos.length) * 100)}%`;
