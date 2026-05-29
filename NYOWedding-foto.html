@@ -220,55 +220,130 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
 .fab:hover { transform: scale(1.07); }
 .fab:active { transform: scale(.94); }
 
-/* ── MODO COLLAGE ── */
+/* ── MODO COLLAGE (Masonry Grid) ── */
 #modo-collage {
   display: none;
   width: 100vw; height: 100vh;
-  background: var(--surface);
+  background: #1a110d;
   overflow: hidden; position: relative;
 }
+/* Header overlay */
 .collage-header {
-  position: absolute; top: 0; left: 0; right: 0; z-index: 10;
-  text-align: center; padding: 20px 24px 16px;
-  background: linear-gradient(to bottom, var(--surface) 70%, transparent);
+  position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+  text-align: center; padding: 28px 24px 40px;
+  background: linear-gradient(to bottom, rgba(26,17,13,0.92) 40%, transparent);
   pointer-events: none;
 }
-.collage-title { font-family: var(--font-display); font-size: 64px; color: var(--rose-dark); line-height: 1; }
-.collage-sub { font-family: var(--font-heading); font-size: 16px; color: var(--ink-mute); letter-spacing: .1em; margin-top: 4px; }
-.collage-canvas { position: absolute; left: 0; right: 0; top: 0; }
+.collage-title { font-family: var(--font-display); font-size: 60px; color: #EDE0CB; line-height: 1; text-shadow: 0 2px 20px rgba(0,0,0,.4); }
+.collage-sub { font-family: var(--font-heading); font-size: 14px; color: rgba(237,224,203,.6); letter-spacing: .18em; text-transform: uppercase; margin-top: 6px; }
+
+/* Masonry scroll wrapper */
+.collage-canvas {
+  position: absolute; left: 0; right: 0; top: 0;
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  align-items: flex-start;
+  will-change: transform;
+}
+
+/* Each column */
+.collage-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Individual photo card */
 .collage-photo {
-  position: absolute;
-  border-radius: 6px;
+  width: 100%;
+  border-radius: 4px;
   overflow: hidden;
-  border: 6px solid #fff;
-  box-shadow: 0 4px 20px rgba(42,31,26,.25);
+  border: 3px solid rgba(255,255,255,0.12);
+  box-shadow: 0 2px 12px rgba(0,0,0,.5);
   cursor: pointer;
   transform: rotate(var(--r, 0deg));
-  transition: transform .2s, box-shadow .2s;
+  transition: transform .25s, box-shadow .25s, border-color .25s;
   -webkit-tap-highlight-color: transparent;
+  position: relative;
+  flex-shrink: 0;
+  animation: fadeInPhoto .5s ease both;
 }
-.collage-photo:hover { transform: rotate(var(--r,0deg)) scale(1.04); box-shadow: 0 8px 32px rgba(42,31,26,.35); z-index: 999 !important; }
-.collage-photo img, .collage-photo video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.photo-name { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(42,31,26,.5); color: #fff; font-size: 11px; text-align: center; padding: 3px 6px; font-family: var(--font-body); }
-.collage-hide-btn { display: none; position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; background: rgba(42,31,26,.7); color: #fff; border: none; cursor: pointer; font-size: 12px; align-items: center; justify-content: center; }
+@keyframes fadeInPhoto {
+  from { opacity: 0; transform: rotate(var(--r,0deg)) scale(.92); }
+  to   { opacity: 1; transform: rotate(var(--r,0deg)) scale(1); }
+}
+.collage-photo:hover {
+  transform: rotate(var(--r,0deg)) scale(1.03);
+  box-shadow: 0 8px 32px rgba(0,0,0,.7);
+  border-color: rgba(237,224,203,.5);
+  z-index: 5;
+}
+.collage-photo img, .collage-photo video {
+  width: 100%; display: block;
+  object-fit: cover;
+  min-height: 120px;
+}
+.collage-photo video {
+  aspect-ratio: 9/16;
+  background: #000;
+}
+.photo-name {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(26,17,13,.75));
+  color: rgba(237,224,203,.9); font-size: 10px;
+  text-align: center; padding: 12px 6px 5px;
+  font-family: var(--font-body);
+}
+.collage-hide-btn {
+  display: none; position: absolute; top: 5px; right: 5px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(26,17,13,.8); color: #EDE0CB;
+  border: none; cursor: pointer; font-size: 11px;
+  align-items: center; justify-content: center;
+}
 .collage-hide-btn.visible { display: flex; }
-.collage-live { position: absolute; top: 16px; right: 16px; z-index: 20; display: flex; align-items: center; gap: 6px; background: rgba(42,31,26,.7); color: #FAF7F2; font-size: 11px; padding: 5px 10px; border-radius: 20px; font-family: var(--font-body); }
-.live-dot { width: 7px; height: 7px; border-radius: 50%; background: #e74c3c; animation: blink 1.2s infinite; }
+
+/* Bottom gradient */
+.collage-footer-fade {
+  position: fixed; bottom: 0; left: 0; right: 0; height: 100px; z-index: 9;
+  background: linear-gradient(to top, rgba(26,17,13,0.95) 20%, transparent);
+  pointer-events: none;
+}
+
+.collage-live {
+  position: fixed; top: 16px; right: 16px; z-index: 20;
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(26,17,13,.75); color: #EDE0CB;
+  font-size: 11px; padding: 5px 12px; border-radius: 20px;
+  font-family: var(--font-body);
+  border: 0.5px solid rgba(237,224,203,.2);
+}
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: #c0392b; animation: blink 1.2s infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
-.collage-counter { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 20; background: rgba(42,31,26,.7); color: #FAF7F2; padding: 8px 20px; border-radius: 20px; text-align: center; font-family: var(--font-body); }
+
+.collage-counter {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 20;
+  background: rgba(26,17,13,.75); color: #EDE0CB;
+  padding: 8px 24px; border-radius: 20px; text-align: center;
+  font-family: var(--font-body);
+  border: 0.5px solid rgba(237,224,203,.2);
+}
 .collage-counter-num { font-family: var(--font-heading); font-size: 28px; line-height: 1; }
-.collage-counter-lbl { font-size: 11px; opacity: .7; }
-/* Botón home en collage */
+.collage-counter-lbl { font-size: 11px; opacity: .6; }
+
 .collage-home {
-  position: absolute; top: 16px; left: 16px; z-index: 20;
+  position: fixed; top: 16px; left: 16px; z-index: 20;
   display: flex; align-items: center; gap: 7px;
-  background: rgba(42,31,26,.7); color: #FAF7F2;
-  border: none; border-radius: 30px;
-  padding: 7px 14px; font-family: var(--font-body); font-size: 13px;
+  background: rgba(26,17,13,.75); color: #EDE0CB;
+  border: 0.5px solid rgba(237,224,203,.2);
+  border-radius: 30px; padding: 7px 14px;
+  font-family: var(--font-body); font-size: 13px;
   cursor: pointer; text-decoration: none;
   transition: background .15s;
 }
-.collage-home:hover { background: rgba(42,31,26,.9); }
+.collage-home:hover { background: rgba(26,17,13,.95); }
 .collage-home svg { width: 13px; height: 13px; fill: currentColor; }
 </style>
 </head>
@@ -337,12 +412,12 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
     <div class="collage-sub">29 · Mayo · 2026 · Nuestros recuerdos</div>
   </div>
   <div class="collage-canvas" id="collage-canvas"></div>
+  <div class="collage-footer-fade"></div>
   <div class="collage-live"><div class="live-dot"></div>en vivo</div>
   <div class="collage-counter">
     <div class="collage-counter-num" id="collage-num">0</div>
     <div class="collage-counter-lbl">fotos</div>
   </div>
-  <!-- Home en collage -->
   <a class="collage-home" href="index.html">
     <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
     Inicio
@@ -483,100 +558,160 @@ function initInvitado() {
   }
 }
 
-/* ══ MODO COLLAGE ══ */
+/* ══ MODO COLLAGE — Masonry Grid ══ */
 function initCollage() {
-  const canvas   = document.getElementById("collage-canvas");
-  const numEl    = document.getElementById("collage-num");
-  let totalFotos = 0, zBase = 1;
-  const placedIds= new Set();
-  const VH = window.innerHeight, VW = window.innerWidth;
-  const CANVAS_H = VH * 3;
-  canvas.style.height = CANVAS_H + "px";
+  const canvas = document.getElementById("collage-canvas");
+  const numEl  = document.getElementById("collage-num");
+  let totalFotos = 0;
+  const placedIds = new Set();
 
-  let scrollY = 0, paused = false;
-  const SPEED = 0.4;
-  function scrollLoop() {
-    if (!paused) {
-      scrollY += SPEED;
-      if (scrollY >= CANVAS_H - VH) scrollY = 0;
-      canvas.style.transform = `translateY(-${scrollY}px)`;
-    }
-    requestAnimationFrame(scrollLoop);
-  }
-  scrollLoop();
+  // ── Número de columnas según ancho ──
+  const VW = window.innerWidth;
+  const NUM_COLS = VW < 480 ? 2 : VW < 768 ? 3 : 4;
 
-  document.getElementById("modo-collage").addEventListener("dblclick", e => {
-    if (!e.target.closest(".collage-photo")) paused = !paused;
-  });
-
-  const COLS = 4, ROWS = 9;
-  const cellW = VW / COLS, cellH = CANVAS_H / ROWS;
-  const usedCells = new Set();
-
-  function getFreeCell() {
-    const all = [];
-    for (let r = 0; r < ROWS; r++)
-      for (let c = 0; c < COLS; c++)
-        if (!usedCells.has(`${r}-${c}`)) all.push([r,c]);
-    if (all.length === 0) { usedCells.clear(); return getFreeCell(); }
-    const [r,c] = all[Math.floor(Math.random()*all.length)];
-    usedCells.add(`${r}-${c}`);
-    return [r,c];
+  // Crear columnas
+  const cols = [];
+  for (let i = 0; i < NUM_COLS; i++) {
+    const col = document.createElement("div");
+    col.className = "collage-col";
+    canvas.appendChild(col);
+    cols.push({ el: col, height: 0 });
   }
 
-  function rnd(a,b) { return a + Math.random()*(b-a); }
+  // Rotaciones sutiles alternadas por columna
+  const ROTS = [-1.8, 0.9, -0.6, 1.4, 0, -1.2, 0.7, -0.4];
+
+  function getShortestCol() {
+    return cols.reduce((min, col, i) =>
+      col.height < cols[min].height ? i : min, 0);
+  }
+
+  function rndRot(colIdx) {
+    const base = ROTS[colIdx % ROTS.length];
+    return base + (Math.random() * 0.6 - 0.3);
+  }
 
   function placePhoto(row) {
     if (placedIds.has(row.id) || row.oculta) return;
     placedIds.add(row.id);
     totalFotos++;
     numEl.textContent = totalFotos;
+
     const esVideo = row.tipo === "video";
-    const size = rnd(150,210), rot = rnd(-10,10);
-    const [r,c] = getFreeCell();
-    const x = c*cellW + (cellW-size)/2 + rnd(-cellW*.1, cellW*.1);
-    const y = r*cellH + (cellH-size)/2 + rnd(-cellH*.1, cellH*.1);
+    const colIdx  = getShortestCol();
+    const rot     = rndRot(colIdx);
+
     const el = document.createElement("div");
     el.className = "collage-photo";
     el.dataset.id = row.id;
-    el.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px;z-index:${zBase++};--r:${rot}deg;`;
+    el.style.setProperty("--r", rot + "deg");
+
     el.innerHTML = `
-      ${esVideo ? `<video src="${row.url}" muted loop autoplay playsinline></video>` : `<img src="${row.url}" alt="" loading="lazy">`}
+      ${esVideo
+        ? `<video src="${row.url}" muted loop autoplay playsinline></video>`
+        : `<img src="${row.url}" alt="" loading="lazy" decoding="async">`}
       ${row.nombre ? `<div class="photo-name">${row.nombre}</div>` : ""}
       <button class="collage-hide-btn" title="Ocultar">✕</button>
     `;
-    el.addEventListener("click", () => { el.style.zIndex = zBase++; });
-    el.addEventListener("dblclick", e => {
-      e.stopPropagation(); paused = true;
-      el.querySelector(".collage-hide-btn").classList.toggle("visible");
+
+    // Al hacer doble tap mostrar botón ocultar
+    let tapTimer = null;
+    el.addEventListener("click", e => {
+      if (tapTimer) {
+        clearTimeout(tapTimer);
+        tapTimer = null;
+        e.stopPropagation();
+        el.querySelector(".collage-hide-btn").classList.toggle("visible");
+      } else {
+        tapTimer = setTimeout(() => { tapTimer = null; }, 300);
+      }
     });
+
     el.querySelector(".collage-hide-btn").addEventListener("click", async e => {
       e.stopPropagation();
       await sb.from(TABLA).update({ oculta: true }).eq("id", row.id);
-      el.style.transition = "opacity 0.4s"; el.style.opacity = "0";
-      setTimeout(() => { el.remove(); totalFotos--; numEl.textContent = totalFotos; paused = false; }, 400);
+      el.style.transition = "opacity 0.4s, transform 0.4s";
+      el.style.opacity = "0";
+      el.style.transform = `rotate(${rot}deg) scale(0.85)`;
+      setTimeout(() => {
+        el.remove();
+        totalFotos--;
+        numEl.textContent = totalFotos;
+      }, 420);
     });
-    canvas.appendChild(el);
+
+    cols[colIdx].el.appendChild(el);
+
+    // Estimar altura para balance de columnas
+    const colW = VW / NUM_COLS;
+    // Videos: aspect 9/16 (vertical), fotos: estimamos 4/3
+    const approxH = esVideo ? colW * (16/9) : colW * (4/3);
+    cols[colIdx].height += approxH + 6;
+
+    // Ajustar altura real al cargar
+    const media = el.querySelector("img, video");
+    if (media) {
+      const update = () => {
+        const real = el.offsetHeight;
+        if (real > 0) cols[colIdx].height += real - approxH;
+      };
+      if (esVideo) media.addEventListener("loadedmetadata", update, { once: true });
+      else media.addEventListener("load", update, { once: true });
+    }
   }
 
+  // ── Scroll automático suave ──
+  let scrollY = 0;
+  let paused  = false;
+  const SPEED = 0.5;
+
+  function scrollLoop() {
+    if (!paused) {
+      const maxScroll = canvas.scrollHeight - window.innerHeight;
+      if (maxScroll > 0) {
+        scrollY += SPEED;
+        if (scrollY >= maxScroll) scrollY = 0;
+        canvas.style.transform = `translateY(-${scrollY}px)`;
+      }
+    }
+    requestAnimationFrame(scrollLoop);
+  }
+  scrollLoop();
+
+  // Pausar con doble tap en fondo
+  document.getElementById("modo-collage").addEventListener("dblclick", e => {
+    if (!e.target.closest(".collage-photo")) paused = !paused;
+  });
+
+  // ── Realtime ──
   function placePhotoRealtime(row) {
     if (placedIds.has(row.id) || row.oculta) return;
-    // Para fotos en tiempo real, colocar en zona visible
     placePhoto(row);
-    // Ajustar posición a zona visible actual
-    const el = canvas.querySelector(`[data-id="${row.id}"]`);
-    if (el) el.style.top = (scrollY + VH*0.2 + rnd(0, VH*0.5)) + "px";
-  }
-
-  async function loadAll() {
-    const { data, error } = await sb.from(TABLA).select("*").order("created_at", { ascending: true });
-    if (error) { console.error("loadAll error:", error); return; }
-    if (data) data.filter(r => !r.oculta).forEach(placePhoto);
+    // Scroll suave a la foto nueva (columna más corta al momento de insertar)
+    setTimeout(() => {
+      const el = canvas.querySelector(`[data-id="${row.id}"]`);
+      if (el) {
+        const top = el.offsetTop;
+        const target = Math.max(0, top - window.innerHeight * 0.3);
+        scrollY = target;
+      }
+    }, 200);
   }
 
   sb.channel("fotos-realtime")
-    .on("postgres_changes", { event: "INSERT", schema: "public", table: TABLA }, payload => placePhotoRealtime(payload.new))
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: TABLA },
+      payload => placePhotoRealtime(payload.new))
     .subscribe();
+
+  // ── Carga inicial ──
+  async function loadAll() {
+    const { data, error } = await sb.from(TABLA)
+      .select("*")
+      .eq("oculta", false)
+      .order("created_at", { ascending: true });
+    if (error) { console.error("loadAll error:", error); return; }
+    if (data) data.forEach(placePhoto);
+  }
 
   loadAll();
 }
