@@ -246,6 +246,15 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
   align-items: flex-start;
   will-change: transform;
 }
+/* Modo manual: canvas es scrolleable */
+#modo-collage.manual-scroll {
+  overflow-y: auto;
+}
+#modo-collage.manual-scroll .collage-canvas {
+  position: relative;
+  will-change: auto;
+  transform: none !important;
+}
 
 /* Each column */
 .collage-col {
@@ -345,6 +354,81 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
 }
 .collage-home:hover { background: rgba(26,17,13,.95); }
 .collage-home svg { width: 13px; height: 13px; fill: currentColor; }
+
+/* Toggle scroll automático */
+.collage-scroll-toggle {
+  position: fixed; top: 56px; right: 16px; z-index: 20;
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(26,17,13,.75); color: #EDE0CB;
+  padding: 8px 14px; border-radius: 20px;
+  font-family: var(--font-body); font-size: 12px;
+  border: 0.5px solid rgba(237,224,203,.2);
+  cursor: pointer; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.collage-scroll-toggle.with-bar { bottom: auto; }
+
+/* Foto seleccionada */
+.collage-photo.selected {
+  outline: 3px solid #4A7C59;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px rgba(74,124,89,.35), 0 8px 32px rgba(0,0,0,.7);
+}
+.collage-photo.selected::after {
+  content: "✓";
+  position: absolute; top: 6px; left: 6px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #4A7C59; color: #fff;
+  font-size: 13px; font-weight: bold;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 5;
+}
+
+/* Barra de descarga */
+.collage-download-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 25;
+  background: rgba(26,17,13,.95);
+  border-top: 0.5px solid rgba(237,224,203,.15);
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 10px;
+  transform: translateY(100%);
+  transition: transform .3s;
+}
+.collage-download-bar.visible { transform: translateY(0); }
+.collage-download-bar-info {
+  flex: 1;
+  font-family: var(--font-body); font-size: 13px; color: rgba(237,224,203,.7);
+}
+.collage-download-bar-info strong { color: #EDE0CB; }
+.btn-download {
+  background: #4A7C59; color: #fff; border: none;
+  padding: 10px 20px; border-radius: 20px;
+  font-family: var(--font-body); font-size: 13px; font-weight: 500;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-download:hover { background: #3D5C42; }
+.btn-deselect {
+  background: rgba(237,224,203,.1); color: rgba(237,224,203,.7);
+  border: 0.5px solid rgba(237,224,203,.2);
+  padding: 10px 14px; border-radius: 20px;
+  font-family: var(--font-body); font-size: 13px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+  width: 28px; height: 16px; border-radius: 8px;
+  background: rgba(237,224,203,.25); position: relative;
+  transition: background .2s; flex-shrink: 0;
+}
+.scroll-toggle-dot::after {
+  content: ""; position: absolute;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: #EDE0CB; top: 2px; left: 2px;
+  transition: transform .2s;
+}
+.collage-scroll-toggle.active .scroll-toggle-dot { background: #4A7C59; }
+.collage-scroll-toggle.active .scroll-toggle-dot::after { transform: translateX(12px); }
 </style>
 </head>
 <body>
@@ -422,6 +506,15 @@ body { font-family: var(--font-body); background: var(--surface); color: var(--i
     <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
     Inicio
   </a>
+  <div class="collage-scroll-toggle active" id="scroll-toggle" title="Scroll automático">
+    <div class="scroll-toggle-dot"></div>
+    Auto
+  </div>
+  <div class="collage-download-bar" id="download-bar">
+    <div class="collage-download-bar-info"><strong id="sel-count">0</strong> foto(s) seleccionada(s)</div>
+    <button class="btn-deselect" id="btn-deselect">Limpiar</button>
+    <button class="btn-download" id="btn-download">⬇ Descargar</button>
+  </div>
 </div>
 
 <!-- FAB -->
@@ -602,8 +695,10 @@ function initInvitado() {
 
 /* ══ MODO COLLAGE — Masonry Grid ══ */
 function initCollage() {
-  const canvas = document.getElementById("collage-canvas");
-  const numEl  = document.getElementById("collage-num");
+  const modoEl = document.getElementById("modo-collage");
+  const canvas  = document.getElementById("collage-canvas");
+  const numEl   = document.getElementById("collage-num");
+  const toggleEl= document.getElementById("scroll-toggle");
   let totalFotos = 0;
   const placedIds = new Set();
 
@@ -633,14 +728,68 @@ function initCollage() {
     return base + (Math.random() * 0.6 - 0.3);
   }
 
-  function placePhoto(row) {
+  // ── Toggle scroll automático ──
+  let autoScroll = true;
+  const downloadBar = document.getElementById("download-bar");
+  const selCountEl  = document.getElementById("sel-count");
+  const selectedIds = new Map(); // id -> url
+
+  function updateDownloadBar() {
+    const n = selectedIds.size;
+    selCountEl.textContent = n;
+    downloadBar.classList.toggle("visible", n > 0);
+  }
+
+  document.getElementById("btn-deselect").addEventListener("click", () => {
+    selectedIds.clear();
+    document.querySelectorAll(".collage-photo.selected").forEach(el => el.classList.remove("selected"));
+    updateDownloadBar();
+  });
+
+  document.getElementById("btn-download").addEventListener("click", async () => {
+    if (selectedIds.size === 0) return;
+    showToast(`Descargando ${selectedIds.size} foto(s)...`);
+    for (const [id, url] of selectedIds) {
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const ext = blob.type.includes("video") ? "mp4" : "jpg";
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `NYO_${id}.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+        await new Promise(r => setTimeout(r, 400)); // pequeño delay entre descargas
+      } catch(e) {
+        console.error("Error descargando", id, e);
+      }
+    }
+    showToast("¡Descarga completa! 📸", "ok");
+  });
+
+  toggleEl.addEventListener("click", () => {
+    autoScroll = !autoScroll;
+    toggleEl.classList.toggle("active", autoScroll);
+    modoEl.classList.toggle("manual-scroll", !autoScroll);
+    if (autoScroll) {
+      // Sincronizar scrollY con posición actual de scroll manual
+      scrollY = modoEl.scrollTop;
+      modoEl.scrollTop = 0;
+    } else {
+      // Llevar scroll manual a donde estaba el auto
+      modoEl.scrollTop = scrollY;
+    }
+  });
+
+  function placePhoto(row, prepend = false) {
     if (placedIds.has(row.id) || row.oculta) return;
     placedIds.add(row.id);
     totalFotos++;
     numEl.textContent = totalFotos;
 
     const esVideo = row.tipo === "video";
-    const colIdx  = getShortestCol();
+    const colIdx  = prepend ? 0 : getShortestCol(); // fotos nuevas siempre a la col 0
     const rot     = rndRot(colIdx);
 
     const el = document.createElement("div");
@@ -656,9 +805,22 @@ function initCollage() {
       <button class="collage-hide-btn" title="Ocultar">✕</button>
     `;
 
-    // Al hacer doble tap mostrar botón ocultar
+    // Tap: en manual mode selecciona, en auto mode muestra botón ocultar
     let tapTimer = null;
     el.addEventListener("click", e => {
+      if (!autoScroll) {
+        // Modo manual: tap selecciona/deselecciona
+        if (e.target.closest(".collage-hide-btn")) return;
+        el.classList.toggle("selected");
+        if (el.classList.contains("selected")) {
+          selectedIds.set(row.id, row.url);
+        } else {
+          selectedIds.delete(row.id);
+        }
+        updateDownloadBar();
+        return;
+      }
+      // Modo auto: doble tap muestra botón ocultar
       if (tapTimer) {
         clearTimeout(tapTimer);
         tapTimer = null;
@@ -682,15 +844,18 @@ function initCollage() {
       }, 420);
     });
 
-    cols[colIdx].el.appendChild(el);
+    if (prepend) {
+      // Insertar al inicio de la primera columna
+      cols[0].el.insertBefore(el, cols[0].el.firstChild);
+    } else {
+      cols[colIdx].el.appendChild(el);
+    }
 
     // Estimar altura para balance de columnas
     const colW = VW / NUM_COLS;
-    // Videos: aspect 9/16 (vertical), fotos: estimamos 4/3
     const approxH = esVideo ? colW * (16/9) : colW * (4/3);
     cols[colIdx].height += approxH + 6;
 
-    // Ajustar altura real al cargar
     const media = el.querySelector("img, video");
     if (media) {
       const update = () => {
@@ -704,11 +869,10 @@ function initCollage() {
 
   // ── Scroll automático suave ──
   let scrollY = 0;
-  let paused  = false;
   const SPEED = 0.5;
 
   function scrollLoop() {
-    if (!paused) {
+    if (autoScroll) {
       const maxScroll = canvas.scrollHeight - window.innerHeight;
       if (maxScroll > 0) {
         scrollY += SPEED;
@@ -720,24 +884,20 @@ function initCollage() {
   }
   scrollLoop();
 
-  // Pausar con doble tap en fondo
-  document.getElementById("modo-collage").addEventListener("dblclick", e => {
-    if (!e.target.closest(".collage-photo")) paused = !paused;
-  });
-
-  // ── Realtime ──
+  // ── Realtime — fotos nuevas aparecen al tope ──
   function placePhotoRealtime(row) {
     if (placedIds.has(row.id) || row.oculta) return;
-    placePhoto(row);
-    // Scroll suave a la foto nueva (columna más corta al momento de insertar)
+    placePhoto(row, true); // prepend = true
+
+    // Scroll al inicio para mostrar la foto nueva
     setTimeout(() => {
-      const el = canvas.querySelector(`[data-id="${row.id}"]`);
-      if (el) {
-        const top = el.offsetTop;
-        const target = Math.max(0, top - window.innerHeight * 0.3);
-        scrollY = target;
+      if (autoScroll) {
+        scrollY = 0;
+        canvas.style.transform = "translateY(0)";
+      } else {
+        modoEl.scrollTo({ top: 0, behavior: "smooth" });
       }
-    }, 200);
+    }, 150);
   }
 
   sb.channel("fotos-realtime")
@@ -745,14 +905,14 @@ function initCollage() {
       payload => placePhotoRealtime(payload.new))
     .subscribe();
 
-  // ── Carga inicial ──
+  // ── Carga inicial — más recientes primero ──
   async function loadAll() {
     const { data, error } = await sb.from(TABLA)
       .select("*")
       .eq("oculta", false)
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: false });
     if (error) { console.error("loadAll error:", error); return; }
-    if (data) data.forEach(placePhoto);
+    if (data) data.forEach(row => placePhoto(row, false));
   }
 
   loadAll();
